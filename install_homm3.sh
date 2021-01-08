@@ -14,7 +14,6 @@ HOMM3CBIN="$HOME/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740
 HOMM3HD="$HOME/Downloads/HoMM3_HD_Latest_setup.exe"
 HOMM3HOTA="$HOME/Downloads/HotA_1.6.1_setup.exe"
 WINEPKG="http://dl.winehq.org/wine-builds/macosx/pool/winehq-stable-4.0.3.pkg"
-# TODO: Better to use the '/usr/local/bin/wine' symlink.
 WINE="/Applications/Wine Stable.app/Contents/Resources/wine/bin/wine"
 FOLDERS="GOG Games/HoMM 3 Complete"
 WINEHOMM3C="$HOME/.wine/drive_c/$FOLDERS/Heroes3.exe"
@@ -22,14 +21,7 @@ WINEHOMM3HD="$HOME/.wine/drive_c/$FOLDERS/HD_Launcher.exe"
 WINEHOMM3HOTA="$HOME/.wine/drive_c/$FOLDERS/HotA_launcher.exe"
 ICON="$HOME/Desktop/homm3.app"
 
-# TODO: Check if the script runs with sudo. If yes, abort.
-# TODO: Catalina and Big Sur support if possible. - https://github.com/Gcenx/WineskinServer#macos-catalina-support
-# TODO: Linux support.
-# TODO: Create README.md and link this also in it: https://rogulski.it/blog/heroes-3-on-wine/
-# TODO: Use WINEPREFIX, not the hardcoded (default) folder structure.
-
 # Check OS. At the moment Mac Catalina (or above) is not supported, neither Mavericks (or below).
-# TODO: Check if Mavericks or below really break anything.
 echo_check_os_type () {
   if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 18)); then
     printf "\n%s\n\n" "${AOK} Your Mac OS type is ${OSTYPE:6}. You might have to provide your password during the process.";
@@ -85,7 +77,6 @@ install_wine () {
 }
 
 # Install Wine from package (http://dl.winehq.org/wine-builds/macosx/pool/). Not used at the moment.
-# TODO: Check if we need this with Maverick or below.
 install_winepkg () {
   export WINEPREFIX=/Volumes/Exfat4life/WINE
   curl --silent --show-error --location --output "$HOME/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
@@ -95,7 +86,6 @@ install_winepkg () {
 }
 
 # Check prerequisites. At the moment the two core install files have to be downloaded from gog.com (after purchasing HOMM3 Complete).
-# TODO: Auto dl from gog.com with https://github.com/nicohman/wyvern OR https://github.com/Sude-/lgogdownloader
 echo_prerequisites () {
   printf "%s\n" "${RED}Download${NC} HOMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
   read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
@@ -120,7 +110,7 @@ echo_prerequisites () {
 
 # Download HOMM3 HD and HotA.
 download_files () {
-  printf "%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=598"
+  printf "%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614"
 
   if [ -f "$HOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HOMM3 HD installer exists."
@@ -172,18 +162,17 @@ install_homm3_hota () {
   fi
 }
 
-# TODO: update HoMM3 HD and HotA somehow if possible. HotA update is low prio because we can download it too directly.
+# Update games. Not used at the moment.
 update () {
   sleep 1
 }
 
-# TODO: set/edit few basic values in hota.ini - _HD3_Data/Settings/hota.ini
+# Tweaking. Not used at the moment.
 tweak () {
   sleep 1
 }
 
 # Create Desktop icon or Dock shortcut. Not used at the moment.
-# TODO: Fix it. https://www.davidbaumgold.com/tutorials/wine-mac/#making-a-dock-icon
 generate_shortcut () {
   if [ -f "$ICON" ]; then
     printf "%s\n\n" "${AOK} HoMM3 shortcut is present."
