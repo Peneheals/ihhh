@@ -23,7 +23,7 @@ ICON="$HOME/Desktop/homm3.app"
 
 # Check OS. At the moment Mac Catalina (or above) is not supported, neither Mavericks (or below).
 echo_check_os_type () {
-  if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 18)); then
+  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
     printf "\n%s\n\n" "${AOK} Your Mac OS type is ${OSTYPE:6}. You might have to provide your password during the process.";
   else
     printf "\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina (or above), and you should not use OS X Mavericks (or below). Install manually instead or create an issue on Github. Aborting..."
@@ -59,7 +59,7 @@ install_wine () {
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
   else
-    if ((${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17)); then
+    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       # brew install wine --force-bottle
       printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing Wine stable. ${RED}Mono${NC} and ${RED}Gecko${NC} packages are not necessary for HoMM3, skip them if asked."
       sleep 2
