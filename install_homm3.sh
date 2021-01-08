@@ -52,17 +52,6 @@ install_homebrew () {
   fi
 }
 
-# Install wget.
-# TODO: Also check if wget command exists, if yes, skip the whole step. Or use curl and drop wget.
-install_wget () {
-  if brew list wget; then
-    printf "\n%s\n\n" "${AOK} Wget is installed."
-  else
-    brew install wget
-    printf "%s\n\n" "${AOK} Wget has been installed."
-  fi
-}
-
 # Install XQuartz.
 install_xquartz () {
   if brew list --cask xquartz; then
@@ -99,7 +88,7 @@ install_wine () {
 # TODO: Check if we need this with Maverick or below.
 install_winepkg () {
   export WINEPREFIX=/Volumes/Exfat4life/WINE
-  wget -b -P "$HOME/Downloads" "$WINEPKG"
+  curl --silent --show-error --location --output "$HOME/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
   mkdir -p "$WINEPREFIX"
   sudo installer -pkg "$HOME/Downloads/winehq-stable-4.0.3.pkg" -target "$WINEPREFIX"
   ln -s  "${WINE}" /usr/local/bin/wine
@@ -116,7 +105,7 @@ echo_prerequisites () {
       if [ -f "$HOMM3CBIN" ]; then
         printf "%s\n\n" "${AOK} HOMM3 Complete filepart #2 present."
       else
-        printf "%s\n\n" "${AERRO} HOMM3 Complete filepart #2 missing. Download from gog.com. Aborting..."
+        printf "%s\n\n" "${AERROR} HOMM3 Complete filepart #2 missing. Download from gog.com. Aborting..."
         exit 1
       fi
     else
@@ -136,7 +125,6 @@ download_files () {
   if [ -f "$HOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HOMM3 HD installer exists."
   else
-#    wget -b -P "$HOME/Downloads" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe 1>/dev/null 2>&1
     curl --silent --show-error --location --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
     printf "\n%s\n\n" "${AOK} HOMM3 HD downloaded."
   fi
@@ -144,7 +132,6 @@ download_files () {
   if [ -f "$HOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HOMM3 HotA installer exists."
   else
-#    wget -b -P "$HOME/Downloads" https://www.vault.acidcave.net/download.php?id=598
 #    curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=598
     curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
     printf "%s\n\n" "${AOK} HOMM3 HotA downloaded."
@@ -224,7 +211,6 @@ end_message () {
 
 echo_check_os_type
 install_homebrew
-install_wget
 install_xquartz
 install_wine
 #install_winepkg
