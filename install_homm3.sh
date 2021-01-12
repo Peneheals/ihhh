@@ -36,6 +36,7 @@ echo_check_os_type () {
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
   xcode-select --install
+  printf "\n%s\n\n" "${AOK} xcode-select has been installed."
 }
 
 # Install Homebrew.
@@ -62,10 +63,10 @@ install_git () {
           :
         else
           mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
-          printf "%s\n" "${INSECURE}" > $HOME/.curlrc
+          printf "%s\n" "--insecure" > $HOME/.curlrc
         fi
       else
-        printf "%s\n" "${INSECURE}" > $HOME/.curlrc
+        printf "%s\n" "--insecure" > $HOME/.curlrc
         NEWCURLRC="1"
       fi
       brew install --build-from-source git
