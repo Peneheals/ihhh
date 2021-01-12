@@ -107,7 +107,7 @@ install_wine () {
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       # brew install wine --force-bottle
-      printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing Wine stable. ${RED}Mono${NC} and ${RED}Gecko${NC} packages are not necessary for HoMM3, skip them if asked."
+      printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing Wine stable."
       sleep 2
       brew install --cask wine-stable
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
@@ -180,7 +180,7 @@ install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
   else
-    printf "${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', select '${RED}Exit${NC}' at last step."
+    printf "${AHR}\n%s\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', select '${RED}Exit${NC}' at last step." "${RED}Mono${NC} and ${RED}Gecko${NC} packages are not necessary for HoMM3, skip them if asked."
     sleep 2
     "${WINE}" $HOMM3CEXE
   fi
