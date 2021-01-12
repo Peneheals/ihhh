@@ -11,10 +11,10 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 
 ## Install
 
-1 - Open Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
+1 - Open the Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
 
 <p align="center">
-  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open Terminal" /></a>
+  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
 </p>
 
 2 - Enter the following command:
@@ -45,10 +45,10 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
   <a href="docs/images/unzipped_zip.png"><img src="docs/images/unzipped_zip.png" width="400" alt="Check the files" /></a>
 </p>
 
-4 - Open Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
+4 - Open the Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
 
 <p align="center">
-  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open Terminal" /></a>
+  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
 </p>
 
 5 - Run the script.
@@ -61,12 +61,17 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 
 TODO
 
-## Run the game after the install
+## How to run the game after the install process
 
-1. Just open a Terminal (see above how).
-1. Enter
+1. Just open the Terminal (see above how).
+1. Enter the below command:
 
-```cd "$HOME/.wine/drive_c/GOG\ Games/HoMM\ 3\ Complete" && wine HD_Launcher.exe```
+    ```
+    cd "$HOME/.wine/drive_c/GOG\ Games/HoMM\ 3\ Complete" && wine HD_Launcher.exe
+    ```
+1. Check for updates with the "Update" button and install it if you found any!
+1. If the basic settings (resolution etc.) look OK, create the HD.exe with the "Create HD exe" button!
+1. **Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command in step #2 (or push the up key for the last executed commands) and hit the "Play" button!**
 
 ## Contribute
 

@@ -4,10 +4,12 @@
 set -e
 RED=`tput setaf 1; tput bold`
 GREEN=`tput setaf 2; tput bold`
+YELLOW=`tput setaf 3; tput bold`
 BOLD=`tput bold`
 NC=`tput sgr0`
 AOK=`printf ${BOLD}[${GREEN}OK${NC}${BOLD}]${NC}`
 AERROR=`printf ${BOLD}[${RED}FALSE${NC}${BOLD}]${NC}`
+AINFO=`printf ${BOLD}[${YELLOW}INFO${NC}${BOLD}]${NC}`
 AHR=`printf ${RED}###########################################################################${NC}`
 INSECURE="--insecure|-k"
 HOMM3CEXE="$HOME/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
@@ -26,7 +28,8 @@ ICON="$HOME/Desktop/homm3.app"
 # 14 - Yosemite, 15 - El Capitan, 16 - Sierra, 17 - High Sierra, 18 - Mojave etc.
 echo_check_os_type () {
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n%s\n\n" "${AOK} Your Mac OS type is ${OSTYPE:6}. You might have to provide your password during the process.";
+    printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "%s${AHR}\n\n" ""
   else
     printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..."
     exit 1
@@ -234,12 +237,12 @@ EOT
 }
 
 end_message () {
-  printf "\n${AHR}\n%s\n\n" "${RED}After the first run:${NC}"
-  printf "%s\n" "${RED}1.${NC} Check for updates with '${RED}Update${NC}' button and install it!"
-  printf "%s\n" "${RED}2.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
-  printf "%s\n" "${RED}3.${NC} Now you are ready to play! The above steps are not needed in the future, just start the game with the '${RED}Play${NC}' button!"
-  printf "%s\n" "${RED}4.${NC} To start the HD.exe, run the following command in terminal (CMND+Space -> Terminal):"
+  printf "\n${AHR}\n%s\n\n" "${RED}How to run the game after the install process:${NC}"
+  printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal) to start the HD launcher:"
   printf "%s\n" "${RED}cd \"$HOME/.wine/drive_c/${FOLDERS}\" && wine HD_Launcher.exe${NC}"
+  printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you found any!"
+  printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
+  printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (or push the up key for last executed command) and hit the '${RED}Play${NC}' button!"
   # printf "%s\n\n" "Locate the Desktop icon and start it! :)"
   printf "%s${AHR}\n\n" ""
 }
