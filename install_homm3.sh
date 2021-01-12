@@ -28,7 +28,7 @@ echo_check_os_type () {
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
     printf "\n%s\n\n" "${AOK} Your Mac OS type is ${OSTYPE:6}. You might have to provide your password during the process.";
   else
-    printf "\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina (or above), and you should not use OS X Mavericks (or below). Install manually instead or create an issue on Github. Aborting..."
+    printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..."
     exit 1
   fi
 }
