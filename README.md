@@ -14,34 +14,46 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 1 - Open Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
 
 <p align="center">
-  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="300" alt="Open Terminal" /></a>
+  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open Terminal" /></a>
 </p>
 
 2 - Enter the following command: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh)"`
 
-[<img src="docs/images/" width="300" />](docs/images/curl_run.png)
+<p align="center">
+  <a href="docs/images/curl_run.png"><img src="docs/images/curl_run.png" width="400" alt="Run the script" /></a>
+</p>
 
 ### Alternative install
 
 1 - Download the code.
 
-![Download the code](docs/images/download_zip.png)
+<p align="center">
+  <a href="docs/images/download_zip.png"><img src="docs/images/download_zip.png" width="400" alt="Download the code" /></a>
+</p>
 
-2 - Clock on it to unzip.
+2 - Click on it to unzip.
 
-![Unzip](docs/images/open_zip.png)
+<p align="center">
+  <a href="docs/images/open_zip.png"><img src="docs/images/open_zip.png" width="400" alt="Unzip the package" /></a>
+</p>
 
 3 - Check that it is in the right place (I assume your DLs go to your home's `Downloads` folder).
 
-![Check files](docs/images/unzipped_zip.png)
+<p align="center">
+  <a href="docs/images/unzipped_zip.png"><img src="docs/images/unzipped_zip.png" width="400" alt="Check the files" /></a>
+</p>
 
 4 - Open Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
-    
-![Open terminal](docs/images/open_terminal.png)
+
+<p align="center">
+  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open Terminal" /></a>
+</p>
 
 5 - Run the script.
 
-![Run the script](docs/images/run_script.png)
+<p align="center">
+  <a href="docs/images/run_script.png"><img src="docs/images/run_script.png" width="400" alt="Run the script" /></a>
+</p>
 
 ### Uninstall
 
