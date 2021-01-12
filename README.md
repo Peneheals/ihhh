@@ -13,9 +13,7 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 
 1 - Open a Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
 
-<p align="center">
-[<img src="docs/images/open_terminal.png" width="300" alt=""/>](docs/images/open_terminal.png)
-</p>
+<span style="display:block;text-align:center"><a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="300" alt="Open Terminal" /></a></span>
 
 2 - Enter the following command: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh)"`
 
