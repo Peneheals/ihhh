@@ -9,6 +9,7 @@ NC=`tput sgr0`
 AOK=`printf ${BOLD}[${GREEN}OK${NC}${BOLD}]${NC}`
 AERROR=`printf ${BOLD}[${RED}FALSE${NC}${BOLD}]${NC}`
 AHR=`printf ${RED}###########################################################################${NC}`
+INSECURE="--insecure|-k"
 HOMM3CEXE="$HOME/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
 HOMM3CBIN="$HOME/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740)-1.bin"
 HOMM3HD="$HOME/Downloads/HoMM3_HD_Latest_setup.exe"
@@ -22,6 +23,7 @@ WINEHOMM3HOTA="$HOME/.wine/drive_c/$FOLDERS/HotA_launcher.exe"
 ICON="$HOME/Desktop/homm3.app"
 
 # Check OS. At the moment Mac Catalina (or above) is not supported, neither Mavericks (or below).
+# 14 - Yosemite, 15 - El Capitan, 16 - Sierra, 17 - High Sierra, 18 - Mojave etc.
 echo_check_os_type () {
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
     printf "\n%s\n\n" "${AOK} Your Mac OS type is ${OSTYPE:6}. You might have to provide your password during the process.";
@@ -29,6 +31,12 @@ echo_check_os_type () {
     printf "\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina (or above), and you should not use OS X Mavericks (or below). Install manually instead or create an issue on Github. Aborting..."
     exit 1
   fi
+}
+
+# Install xcode-select. Opens a dialog prompt.
+install_xs () {
+  xcode-select --install
+  printf "\n%s\n\n" "${AOK} xcode-select has been installed."
 }
 
 # Install Homebrew.
@@ -41,6 +49,44 @@ install_homebrew () {
     brew update
     printf "\n%s\n\n" "${AOK} Homebrew updated."
 #    brew doctor
+  fi
+}
+
+# Install Git.
+install_git () {
+  if brew list git; then
+    printf "\n%s\n\n" "${AOK} Git is installed."
+  else
+    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
+      if [ -f "$HOME/.curlrc" ]; then
+        if grep -qrHnE -- "${INSECURE}" $HOME/.curlrc ; then
+          :
+        else
+          mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
+          printf "%s\n" "--insecure" > $HOME/.curlrc
+        fi
+      else
+        printf "%s\n" "--insecure" > $HOME/.curlrc
+        NEWCURLRC="1"
+      fi
+      brew install --build-from-source git
+      if [ -f "$HOME/.curlrc.old" ]; then
+        rm -rf "$HOME/.curlrc"
+        mv -f "$HOME/.curlrc.old" "$HOME/.curlrc"
+      fi
+      if [[ NEWCURLRC == 1* ]]; then
+        rm -rf "$HOME/.curlrc"
+      fi
+      printf "\n%s\n\n" "${AOK} Git has been installed."
+    else
+      if brew ls --versions git > /dev/null; then
+        brew upgrade git
+	      printf "\n%s\n\n" "${AOK} Git is installed."
+      else
+        brew install git
+        printf "\n%s\n\n" "${AOK} Git has been installed."
+      fi
+    fi
   fi
 }
 
@@ -67,7 +113,7 @@ install_wine () {
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
       if brew ls --versions wine > /dev/null; then
-	printf "\n%s\n\n" "${AOK} Wine is installed."
+	      printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         brew install wine
         printf "\n%s\n\n" "${AOK} Wine has been installed."
@@ -199,7 +245,9 @@ end_message () {
 }
 
 echo_check_os_type
+install_xs
 install_homebrew
+install_git
 install_xquartz
 install_wine
 #install_winepkg
