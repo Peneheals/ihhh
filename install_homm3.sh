@@ -32,14 +32,21 @@ ICON="$HOME/Desktop/homm3.app"
 uninstall() {
   cd "$HOME"
   printf "\n${AINFO} Uninstaller.\n\n"
-  brew remove --force $(brew list --formula)
-  printf "\n%s\n\n" "${AOK} Brew formulas removed."
-  brew remove --force $(brew list --cask)
-  printf "\n%s\n\n" "${AOK} Brew casks removed."
+  if [[ $(command -v brew) == "" ]]; then
+    :
+  else
+    brew remove --force $(brew list --formula)
+    printf "\n%s\n\n" "${AOK} Brew formulas removed."
+    brew remove --force $(brew list --cask)
+    printf "\n%s\n\n" "${AOK} Brew casks removed."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
+    printf "\n%s\n\n" "${AOK} Homebrew itself uninstalled."
+  fi
+  sudo rm -rf /Library/Developer/CommandLineTools
+  sudo xcode-select -r
+  printf "\n%s\n\n" "${AOK} xcode-select/command line tools folder deleted."
   rm -rf "$HOME/.wine/"
   printf "\n%s\n\n" "${AOK} Wine default folder deleted."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
-  printf "\n%s\n\n" "${AOK} Homebrew itself uninstalled."
   rm -rf "$HOMM3HD"
   printf "\n%s\n\n" "${AOK} HoMM3 HD installer deleted."
   rm -rf "$HOMM3HOTA"
@@ -58,10 +65,9 @@ check_arg() {
     PATTERN='^[a-z_-]*$'
     if [[ $ARGONE =~ $PATTERN ]]; then
       if ([ "${ARGONE}" == "--uninstall" ] || [ "${ARGONE}" == "-u" ]); then
-        printf "\n${AINFO} The script's uninstaller function is under development.\n"
         uninstall
       elif ([ "${ARGONE}" == "--help" ] || [ "${ARGONE}" == "-h" ]); then
-        printf "\n${AINFO} The only valid option at the moment is '--uninstall'.\n"
+        printf "\n${AINFO} The only valid option at the moment is '--uninstall'.\n" >&2
         exit 1
       else
         printf "\n${AINFO} Invalid option, continuing.\n"
@@ -81,14 +87,14 @@ check_os () {
     printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
     printf "%s${AHR}\n\n" ""
   else
-    printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..."
+    printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
     exit 1
   fi
 }
 
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
-  if xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
+  if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
     if ((${OSTYPE:6} < 18)); then
       if [[ -f "/Library/Developer/CommandLineTools/usr/bin/git" && -f "/usr/include/iconv.h" ]]; then
         printf "\n%s\n\n" "${AOK} xcode-select is installed."
@@ -210,15 +216,15 @@ echo_prerequisites () {
       if [ -f "$HOMM3CBIN" ]; then
         printf "%s\n\n" "${AOK} HoMM3 Complete filepart #2 present."
       else
-        printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #2 missing. Download from gog.com. Aborting..."
+        printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #2 missing. Download from gog.com. Aborting..." >&2
         exit 1
       fi
     else
-      printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #1 missing. Download from gog.com. Aborting..."
+      printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #1 missing. Download from gog.com. Aborting..." >&2
       exit 1
     fi
   else
-    printf "%s\n\n" "${AERROR} Aborting..."
+    printf "%s\n\n" "${AERROR} Aborting..." >&2
     exit 1
   fi
 }
