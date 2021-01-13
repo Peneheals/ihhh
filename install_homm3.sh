@@ -31,7 +31,7 @@ ICON="$HOME/Desktop/homm3.app"
 # Uninstaller - Wipe EVERYTHING!
 uninstall() {
   printf "\n%s${AHR}\n" ""
-  read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew and all the formulas/casks${NC}, ${RED}Wine and all your Wine-installed programs${NC}, ${RED}HoMM3 and every mods${NC} and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`"
+  read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew and all the formulas/casks${NC}, ${RED}Wine and all your Wine-installed programs${NC}, ${RED}HoMM3 and every mods${NC} and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "$HOME"
     if [[ $(command -v brew) == "" ]]; then
