@@ -31,26 +31,26 @@ ICON="$HOME/Desktop/homm3.app"
 # Uninstaller - Wipe EVERYTHING!
 uninstall() {
   printf "\n%s${AHR}\n" ""
-  read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew and all the formulas/casks${NC}, ${RED}Wine and all your Wine-installed programs${NC}, ${RED}HoMM3 and every mods${NC} and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`"
+  read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew${NC} and all the formulas/casks, ${RED}Wine${NC} and all your Wine-installed programs, ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "$HOME"
     if [[ $(command -v brew) == "" ]]; then
       printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
     else
       brew remove --force $(brew list --formula)
-      printf "\n%s\n\n" "${AOK} Brew formulas was removed."
+      printf "\n%s\n" "${AOK} Brew formulas was removed."
       brew remove --force $(brew list --cask)
-      printf "\n%s\n\n" "${AOK} Brew casks was removed."
+      printf "\n%s\n" "${AOK} Brew casks was removed."
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
-      printf "\n%s\n\n" "${AOK} Homebrew was uninstalled."
+      printf "\n%s\n" "${AOK} Homebrew was uninstalled."
     fi
     sudo rm -rf /Library/Developer/CommandLineTools
     sudo xcode-select -r
-    printf "\n%s\n\n" "${AOK} xcode-select has been reset and command line tools default folder was deleted."
+    printf "\n%s\n" "${AOK} xcode-select has been reset and command line tools default folder was deleted."
     rm -rf "$HOME/.wine/"
-    printf "\n%s\n\n" "${AOK} Wine default folder was deleted."
+    printf "\n%s\n" "${AOK} Wine default folder was deleted."
     rm -rf "$HOMM3HD"
-    printf "\n%s\n\n" "${AOK} HoMM3 HD installer was deleted."
+    printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     exit 0
