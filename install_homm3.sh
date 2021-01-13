@@ -41,6 +41,7 @@ uninstall() {
       sudo rm -rf "/Applications/Wine Stable.app/"
       rm -rf "$HOME/.local/"
       rm -rf "$HOME/.wine/"
+      rm -rf "$HOME/Library/Caches/Wine/"
       printf "\n%s\n" "${AOK} Wine was deleted."
       brew remove --force $(brew list --formula)
       printf "\n%s\n" "${AOK} Brew formulas was removed."
