@@ -37,15 +37,15 @@ uninstall() {
     if [[ $(command -v brew) == "" ]]; then
       printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
     else
-      brew rm wine-stable && brew rm $(join <(brew leaves) <(brew deps wine-stable))
+      brew remove --force --ignore-dependencies wine-stable && brew remove --force --ignore-dependencies $(join <(brew leaves) <(brew deps wine-stable))
       sudo rm -rf "/Applications/Wine Stable.app/"
       rm -rf "$HOME/.local/"
       rm -rf "$HOME/.wine/"
       rm -rf "$HOME/Library/Caches/Wine/"
       printf "\n%s\n" "${AOK} Wine was deleted."
-      brew remove --force $(brew list --formula)
+      brew remove --force --ignore-dependencies $(brew list --formula)
       printf "\n%s\n" "${AOK} Brew formulas was removed."
-      brew remove --force $(brew list --cask)
+      brew remove --zap --force --ignore-dependencies $(brew list --cask)
       printf "\n%s\n" "${AOK} Brew casks was removed."
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
