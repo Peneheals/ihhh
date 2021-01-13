@@ -33,24 +33,24 @@ uninstall() {
   cd "$HOME"
   printf "\n${AINFO} Uninstaller.\n\n"
   if [[ $(command -v brew) == "" ]]; then
-    :
+    printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
   else
     brew remove --force $(brew list --formula)
-    printf "\n%s\n\n" "${AOK} Brew formulas removed."
+    printf "\n%s\n\n" "${AOK} Brew formulas was removed."
     brew remove --force $(brew list --cask)
-    printf "\n%s\n\n" "${AOK} Brew casks removed."
+    printf "\n%s\n\n" "${AOK} Brew casks was removed."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
-    printf "\n%s\n\n" "${AOK} Homebrew itself uninstalled."
+    printf "\n%s\n\n" "${AOK} Homebrew was uninstalled."
   fi
   sudo rm -rf /Library/Developer/CommandLineTools
   sudo xcode-select -r
-  printf "\n%s\n\n" "${AOK} xcode-select/command line tools folder deleted."
+  printf "\n%s\n\n" "${AOK} xcode-select has been reset and command line tools default folder was deleted."
   rm -rf "$HOME/.wine/"
-  printf "\n%s\n\n" "${AOK} Wine default folder deleted."
+  printf "\n%s\n\n" "${AOK} Wine default folder was deleted."
   rm -rf "$HOMM3HD"
-  printf "\n%s\n\n" "${AOK} HoMM3 HD installer deleted."
+  printf "\n%s\n\n" "${AOK} HoMM3 HD installer was deleted."
   rm -rf "$HOMM3HOTA"
-  printf "\n%s\n\n" "${AOK} HoMM3 HotA installer deleted."
+  printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
   exit 0
 }
 
