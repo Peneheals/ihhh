@@ -2,11 +2,11 @@
 
 - [Prerequisites](#prerequisites)
 - [Install](#install)
-- [Alternative install method](#alternative-install-method)
-- [Uninstall](#uninstall)
 - [How to run the game after the install process](#how-to-run-the-game-after-the-install-process)
 - [Contribute](#contribute)
 - [Good to know](#good-to-know)
+- [Alternative install method](#alternative-install-method)
+- [Uninstall](#uninstall)
 - [Copyright](#copyright)
 
 This short script will help you installing and running Heroes of Might and Magic 3, HoMM3 HD edition and Horn of the Abyss (HotA) on your older Mac OS. You need to do just one thing before you start the process: download the two offline HoMM3 installer files (~1 GB) from [gog.com](https://www.gog.com/account) (I assume you bought the game before).
@@ -29,56 +29,12 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 2 - Enter the following command:
 
 ```
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh)"
+/bin/bash -c "$(curl -H 'Cache-Control: no-cache' -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh)"
 ```
 
 <p align="center">
   <a href="docs/images/curl_run.png"><img src="docs/images/curl_run.png" width="400" alt="Run the script" /></a>
 </p>
-
-## Alternative install method
-
-1 - Download the code.
-
-<p align="center">
-  <a href="docs/images/download_zip.png"><img src="docs/images/download_zip.png" width="400" alt="Download the code" /></a>
-</p>
-
-2 - Click on it to unzip.
-
-<p align="center">
-  <a href="docs/images/open_zip.png"><img src="docs/images/open_zip.png" width="400" alt="Unzip the package" /></a>
-</p>
-
-3 - Check that it is in the right place (I assume your DLs go to your home's `Downloads` folder).
-
-<p align="center">
-  <a href="docs/images/unzipped_zip.png"><img src="docs/images/unzipped_zip.png" width="400" alt="Check the files" /></a>
-</p>
-
-4 - Open the Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
-
-<p align="center">
-  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
-</p>
-
-5 - Run the script.
-
-<p align="center">
-  <a href="docs/images/run_script.png"><img src="docs/images/run_script.png" width="400" alt="Run the script" /></a>
-</p>
-
-## Uninstall
-
-**Use with precaution! It will wipe everything!!!**
-- Brew and all formulas and casks,
-- Wine and all your Wine-installed programs,
-- HoMM3 and every expansion,
-- and all your saved games!
-
-```
-curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -u
-```
 
 ## How to run the game after the install process
 
@@ -105,6 +61,50 @@ If you have any feedback (feature requests, bug reports, problems etc.), feel fr
     1. Planned: [this](https://github.com/nicohman/wyvern) or [this](https://github.com/Sude-/lgogdownloader) to download the offline installer files from GoG.
 1. We do not store nor send any credentials to any 3rd party (except gog.com in a future release).
 1. Planned: Linux support!
+
+## Alternative install method
+
+1 - Download the code.
+
+<p align="center">
+  <a href="docs/images/download_zip.png"><img src="docs/images/download_zip.png" width="400" alt="Download the code" /></a>
+</p>
+
+2 - Click on it to unzip.
+
+<p align="center">
+  <a href="docs/images/open_zip.png"><img src="docs/images/open_zip.png" width="400" alt="Unzip the package" /></a>
+</p>
+
+3 - Check that it is in the right place (I assume your downloads go to your home's `Downloads` folder).
+
+<p align="center">
+  <a href="docs/images/unzipped_zip.png"><img src="docs/images/unzipped_zip.png" width="400" alt="Check the files" /></a>
+</p>
+
+4 - Open the Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
+
+<p align="center">
+  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
+</p>
+
+5 - Run the script with `~/Downloads/ihhh-master/install_homm3.sh` command.
+
+<p align="center">
+  <a href="docs/images/run_script.png"><img src="docs/images/run_script.png" width="400" alt="Run the script" /></a>
+</p>
+
+## Uninstall
+
+**Use with precaution! It will wipe everything!!!**
+- Brew and all formulas and casks,
+- Wine and all your Wine-installed programs,
+- HoMM3 and every expansion,
+- and all your saved games!
+
+```
+curl -H 'Cache-Control: no-cache' -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -u
+```
 
 ## Copyright
 

@@ -52,7 +52,7 @@ uninstall() {
     rm -rf "$HOMM3HD"
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
-    printf "\n%s\n" "${AOK} HoMM3 HotA installer was deleted."
+    printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
