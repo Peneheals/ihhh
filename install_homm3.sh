@@ -37,6 +37,11 @@ uninstall() {
     if [[ $(command -v brew) == "" ]]; then
       printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
     else
+      brew rm wine && brew rm $(join <(brew leaves) <(brew deps wine))
+      sudo rm -rf "/Applications/Wine Stable.app/"
+      rm -rf "$HOME/.local/"
+      rm -rf "$HOME/.wine/"
+      printf "\n%s\n" "${AOK} Wine was deleted."
       brew remove --force $(brew list --formula)
       printf "\n%s\n" "${AOK} Brew formulas was removed."
       brew remove --force $(brew list --cask)
@@ -44,11 +49,9 @@ uninstall() {
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
     fi
-    sudo rm -rf /Library/Developer/CommandLineTools
+    sudo rm -rf "/Library/Developer/CommandLineTools"
     sudo xcode-select -r
     printf "\n%s\n" "${AOK} xcode-select has been reset and command line tools default folder was deleted."
-    rm -rf "$HOME/.wine/"
-    printf "\n%s\n" "${AOK} Wine default folder was deleted."
     rm -rf "$HOMM3HD"
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
@@ -106,19 +109,19 @@ install_xs () {
         printf "\n%s\n\n" "${AOK} xcode-select is installed."
       else
         xcode-select --install
-        printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+        printf "\n%s\n\n" "${AOK} xcode-select is installing, check the dialog box. Return to this terminal when its done."
       fi
     else
       if [ -f "/Library/Developer/CommandLineTools/usr/bin/git" ]; then
         printf "\n%s\n\n" "${AOK} xcode-select is installed."
       else
         xcode-select --install
-        printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+        printf "\n%s\n\n" "${AOK} xcode-select is installing, check the dialog box. Return to this terminal when its done."
       fi
     fi
   else
     xcode-select --install
-    printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+    printf "\n%s\n\n" "${AOK} xcode-select is installing, check the dialog box. Return to this terminal when its done."
   fi
 }
 
@@ -188,8 +191,6 @@ install_wine () {
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       # brew install wine --force-bottle
-      printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing Wine stable."
-      sleep 2
       brew install --cask wine-stable
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
