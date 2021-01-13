@@ -29,14 +29,19 @@ ICON="$HOME/Desktop/homm3.app"
 
 # Uninstaller - Wipe EVERYTHING!
 uninstall() {
-  printf "\n${AINFO} Uninstaller.\n"
-  exit 1
-#  brew remove --force $(brew list --formula)
-#  brew remove --force $(brew list --cask)
-#  rm -rf "$HOME/.wine/"
-#  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
-#  rm -rf "$HOMM3HD"
-#  rm -rf "$HOMM3HOTA"
+  printf "\n${AINFO} Uninstaller.\n\n"
+  brew remove --force $(brew list --formula)
+  printf "\n%s\n\n" "${AOK} Brew formulas removed."
+  brew remove --force $(brew list --cask)
+  printf "\n%s\n\n" "${AOK} Brew casks removed."
+  rm -rf "$HOME/.wine/"
+  printf "\n%s\n\n" "${AOK} Wine default folder deleted."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
+  printf "\n%s\n\n" "${AOK} Homebrew itself uninstalled."
+  rm -rf "$HOMM3HD"
+  printf "\n%s\n\n" "${AOK} HoMM3 HD installer deleted."
+  rm -rf "$HOMM3HOTA"
+  printf "\n%s\n\n" "${AOK} HoMM3 HotA installer deleted."
 }
 
 # Check the given option's validity.
