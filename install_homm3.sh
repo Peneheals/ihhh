@@ -5,6 +5,7 @@
 set -e
 ARGNUM="$#"
 ARGONE="$1"
+OSVER=$(/usr/bin/sw_vers -productVersion)
 RED=`tput setaf 1; tput bold`
 GREEN=`tput setaf 2; tput bold`
 YELLOW=`tput setaf 3; tput bold`
@@ -29,6 +30,7 @@ ICON="$HOME/Desktop/homm3.app"
 
 # Uninstaller - Wipe EVERYTHING!
 uninstall() {
+  cd "$HOME"
   printf "\n${AINFO} Uninstaller.\n\n"
   brew remove --force $(brew list --formula)
   printf "\n%s\n\n" "${AOK} Brew formulas removed."
@@ -42,6 +44,7 @@ uninstall() {
   printf "\n%s\n\n" "${AOK} HoMM3 HD installer deleted."
   rm -rf "$HOMM3HOTA"
   printf "\n%s\n\n" "${AOK} HoMM3 HotA installer deleted."
+  exit 0
 }
 
 # Check the given option's validity.
@@ -75,7 +78,7 @@ check_arg() {
 # 14 - Yosemite, 15 - El Capitan, 16 - Sierra, 17 - High Sierra, 18 - Mojave etc.
 check_os () {
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
     printf "%s${AHR}\n\n" ""
   else
     printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..."
@@ -85,8 +88,26 @@ check_os () {
 
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
-  xcode-select --install
-  printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+  if xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
+    if ((${OSTYPE:6} < 18)); then
+      if [[ -f "/Library/Developer/CommandLineTools/usr/bin/git" && -f "/usr/include/iconv.h" ]]; then
+        printf "\n%s\n\n" "${AOK} xcode-select is installed."
+      else
+        xcode-select --install
+        printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+      fi
+    else
+      if [ -f "/Library/Developer/CommandLineTools/usr/bin/git" ]; then
+        printf "\n%s\n\n" "${AOK} xcode-select is installed."
+      else
+        xcode-select --install
+        printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+      fi
+    fi
+  else
+    xcode-select --install
+    printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+  fi
 }
 
 # Install Homebrew.

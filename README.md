@@ -1,4 +1,13 @@
-## Mac OS HoMM3 installer
+# Mac OS HoMM3 installer
+
+- [Prerequisites](#prerequisites)
+- [Install](#install)
+- [Alternative install method](#alternative-install-method)
+- [Uninstall](#uninstall)
+- [How to run the game after the install process](#how-to-run-the-game-after-the-install-process)
+- [Contribute](#contribute)
+- [Good to know](#good-to-know)
+- [Copyright](#copyright)
 
 This short script will help you installing and running Heroes of Might and Magic 3, HoMM3 HD edition and Horn of the Abyss (HotA) on your older Mac OS. You need to do just one thing before you start the process: download the two offline HoMM3 installer files (~1 GB) from [gog.com](https://www.gog.com/account) (I assume you bought the game before).
 
@@ -68,7 +77,7 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 - and all your saved games!
 
 ```
-/bin/bash "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -u
+curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -u
 ```
 
 ## How to run the game after the install process
