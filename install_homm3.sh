@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 # Set some vars, colors, texts, files, URLs etc.
+# Let the script fail and immediately exit on any error.
 set -e
+ARGNUM="$#"
+ARGONE="$1"
+OSVER=$(/usr/bin/sw_vers -productVersion)
 RED=`tput setaf 1; tput bold`
 GREEN=`tput setaf 2; tput bold`
 YELLOW=`tput setaf 3; tput bold`
@@ -24,34 +28,102 @@ WINEHOMM3HD="$HOME/.wine/drive_c/$FOLDERS/HD_Launcher.exe"
 WINEHOMM3HOTA="$HOME/.wine/drive_c/$FOLDERS/HotA_launcher.exe"
 ICON="$HOME/Desktop/homm3.app"
 
+# Uninstaller - Wipe EVERYTHING!
+uninstall() {
+  cd "$HOME"
+  printf "\n${AINFO} Uninstaller.\n\n"
+  if [[ $(command -v brew) == "" ]]; then
+    printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
+  else
+    brew remove --force $(brew list --formula)
+    printf "\n%s\n\n" "${AOK} Brew formulas was removed."
+    brew remove --force $(brew list --cask)
+    printf "\n%s\n\n" "${AOK} Brew casks was removed."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
+    printf "\n%s\n\n" "${AOK} Homebrew was uninstalled."
+  fi
+  sudo rm -rf /Library/Developer/CommandLineTools
+  sudo xcode-select -r
+  printf "\n%s\n\n" "${AOK} xcode-select has been reset and command line tools default folder was deleted."
+  rm -rf "$HOME/.wine/"
+  printf "\n%s\n\n" "${AOK} Wine default folder was deleted."
+  rm -rf "$HOMM3HD"
+  printf "\n%s\n\n" "${AOK} HoMM3 HD installer was deleted."
+  rm -rf "$HOMM3HOTA"
+  printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
+  exit 0
+}
+
+# Check the given option's validity.
+check_arg() {
+  if [ "${ARGNUM}" -eq "0" ]; then
+    :
+  elif [ "${ARGNUM}" -gt "1" ]; then
+    printf "\n${AERROR} Invalid option, use none or one script argument.\n" >&2
+    exit 1
+  else
+    PATTERN='^[a-z_-]*$'
+    if [[ $ARGONE =~ $PATTERN ]]; then
+      if ([ "${ARGONE}" == "--uninstall" ] || [ "${ARGONE}" == "-u" ]); then
+        uninstall
+      elif ([ "${ARGONE}" == "--help" ] || [ "${ARGONE}" == "-h" ]); then
+        printf "\n${AINFO} The only valid option at the moment is '--uninstall'.\n" >&2
+        exit 1
+      else
+        printf "\n${AINFO} Invalid option, continuing.\n"
+        :
+      fi
+    else
+      printf "\n${AERROR} Invalid option! Use lower case English alphabet and/or "-" characters.\n" >&2
+      exit 1
+    fi
+  fi
+}
+
 # Check OS. At the moment Mac Catalina (or above) is not supported, neither Mavericks (or below).
 # 14 - Yosemite, 15 - El Capitan, 16 - Sierra, 17 - High Sierra, 18 - Mojave etc.
-echo_check_os_type () {
+check_os () {
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
     printf "%s${AHR}\n\n" ""
   else
-    printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..."
+    printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
     exit 1
   fi
 }
 
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
-  xcode-select --install
-  printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+  if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
+    if ((${OSTYPE:6} < 18)); then
+      if [[ -f "/Library/Developer/CommandLineTools/usr/bin/git" && -f "/usr/include/iconv.h" ]]; then
+        printf "\n%s\n\n" "${AOK} xcode-select is installed."
+      else
+        xcode-select --install
+        printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+      fi
+    else
+      if [ -f "/Library/Developer/CommandLineTools/usr/bin/git" ]; then
+        printf "\n%s\n\n" "${AOK} xcode-select is installed."
+      else
+        xcode-select --install
+        printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+      fi
+    fi
+  else
+    xcode-select --install
+    printf "\n%s\n\n" "${AOK} xcode-select has been installed."
+  fi
 }
 
 # Install Homebrew.
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
-#    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     printf "\n%s\n\n" "${AOK} Homebrew installed."
   else
     brew update
     printf "\n%s\n\n" "${AOK} Homebrew updated."
-#    brew doctor
   fi
 }
 
@@ -134,51 +206,51 @@ install_winepkg () {
   ln -s  "${WINE}" /usr/local/bin/wine
 }
 
-# Check prerequisites. At the moment the two core install files have to be downloaded from gog.com (after purchasing HOMM3 Complete).
+# Check prerequisites. At the moment the two core install files have to be downloaded from gog.com (after purchasing HoMM3 Complete).
 echo_prerequisites () {
-  printf "%s\n" "${RED}Download${NC} HOMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
+  printf "%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
   read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
   if [[ $REPLY =~ ^yes$ ]]; then
     if [ -f "$HOMM3CEXE" ]; then
-      printf "\n%s\n\n" "${AOK} HOMM3 Complete filepart #1 present."
+      printf "\n%s\n\n" "${AOK} HoMM3 Complete filepart #1 present."
       if [ -f "$HOMM3CBIN" ]; then
-        printf "%s\n\n" "${AOK} HOMM3 Complete filepart #2 present."
+        printf "%s\n\n" "${AOK} HoMM3 Complete filepart #2 present."
       else
-        printf "%s\n\n" "${AERROR} HOMM3 Complete filepart #2 missing. Download from gog.com. Aborting..."
+        printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #2 missing. Download from gog.com. Aborting..." >&2
         exit 1
       fi
     else
-      printf "%s\n\n" "${AERROR} HOMM3 Complete filepart #1 missing. Download from gog.com. Aborting..."
+      printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #1 missing. Download from gog.com. Aborting..." >&2
       exit 1
     fi
   else
-    printf "%s\n\n" "${AERROR} Aborting..."
+    printf "%s\n\n" "${AERROR} Aborting..." >&2
     exit 1
   fi
 }
 
-# Download HOMM3 HD and HotA.
+# Download HoMM3 HD and HotA.
 download_files () {
   printf "%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614"
 
   if [ -f "$HOMM3HD" ]; then
-    printf "%s\n\n" "${AOK} HOMM3 HD installer exists."
+    printf "%s\n\n" "${AOK} HoMM3 HD installer exists."
   else
     curl --silent --show-error --location --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
-    printf "\n%s\n\n" "${AOK} HOMM3 HD downloaded."
+    printf "\n%s\n\n" "${AOK} HoMM3 HD downloaded."
   fi
 
   if [ -f "$HOMM3HOTA" ]; then
-    printf "%s\n\n" "${AOK} HOMM3 HotA installer exists."
+    printf "%s\n\n" "${AOK} HoMM3 HotA installer exists."
   else
 #    curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=598
     curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
-    printf "%s\n\n" "${AOK} HOMM3 HotA downloaded."
+    printf "%s\n\n" "${AOK} HoMM3 HotA downloaded."
   fi
 }
 
 # Install HoMM3.
-# The "Error: unsupported compressor 8" errors are not relevant and can be ignored. HOMM3 with Wine is working well on APFS filesystem.
+# The "Error: unsupported compressor 8" errors are not relevant and can be ignored. HoMM3 with Wine is working well on APFS filesystem.
 install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
@@ -192,7 +264,7 @@ install_homm3 () {
 # Install HoMM3 HD.
 install_homm3hd () {
   if [ -f "$WINEHOMM3HD" ]; then
-    printf "%s\n\n" "${AOK} HOMM3 HD installed."
+    printf "%s\n\n" "${AOK} HoMM3 HD installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 HD into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', untick '${RED}Launch HoMM3 HD${NC}' at last step."
     sleep 2
@@ -203,7 +275,7 @@ install_homm3hd () {
 # Install HoMM3 HotA.
 install_homm3_hota () {
   if [ -f "$WINEHOMM3HOTA" ]; then
-    printf "%s\n\n" "${AOK} HOMM3 HotA installed."
+    printf "%s\n\n" "${AOK} HoMM3 HotA installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HotA into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
     sleep 2
@@ -247,7 +319,8 @@ end_message () {
   printf "%s${AHR}\n\n" ""
 }
 
-echo_check_os_type
+check_arg
+check_os
 install_xs
 install_homebrew
 install_git
