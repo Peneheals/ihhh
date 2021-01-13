@@ -19,7 +19,9 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 
 2 - Enter the following command:
 
-```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh)"```
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh)"
+```
 
 <p align="center">
   <a href="docs/images/curl_run.png"><img src="docs/images/curl_run.png" width="400" alt="Run the script" /></a>
@@ -59,7 +61,15 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 
 ## Uninstall
 
-TODO
+**Use with precaution! It will wipe everything!!!**
+- Brew and all formulas and casks,
+- Wine and all your Wine-installed programs,
+- HoMM3 and every expansion,
+- and all your saved games!
+
+```
+/bin/bash "$(curl -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -u
+```
 
 ## How to run the game after the install process
 
