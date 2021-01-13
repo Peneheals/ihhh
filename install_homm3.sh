@@ -37,7 +37,7 @@ uninstall() {
     if [[ $(command -v brew) == "" ]]; then
       printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
     else
-      brew remove --cask --force --ignore-dependencies wine-stable && brew remove --force --ignore-dependencies $(join <(brew leaves) <(brew deps wine-stable))
+      brew remove --cask --force --ignore-dependencies wine-stable
       sudo rm -rf "/Applications/Wine Stable.app/"
       rm -rf "$HOME/.local/"
       rm -rf "$HOME/.wine/"
