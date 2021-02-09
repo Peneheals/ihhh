@@ -30,7 +30,7 @@ ICON="$HOME/Desktop/homm3.app"
 
 # Uninstaller - Wipe EVERYTHING!
 uninstall() {
-  printf "\n%s${AHR}\n" ""
+  printf "\n\a%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew${NC} and all the formulas/casks, ${RED}Wine${NC} and all your Wine-installed programs, ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "$HOME"
@@ -64,6 +64,25 @@ uninstall() {
   fi
 }
 
+# Uninstall HoMM3 - Delete ~/.wine!
+uninstall_homm3() {
+  printf "\n\a%s${AHR}\n" ""
+  read -p "${RED}WARNING!${NC} The HoMM3 uninstaller will wipe your $HOME/.wine directory and therefore ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
+  if [[ $REPLY =~ ^yes$ ]]; then
+    cd "$HOME"
+    rm -rf "$HOME/.wine/"
+    printf "\n%s\n" "${AOK} .wine directory was deleted."
+    rm -rf "$HOMM3HD"
+    printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
+    rm -rf "$HOMM3HOTA"
+    printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
+    exit 0
+  else
+    printf "%s\n\n" "${AERROR} Aborting..." >&2
+    exit 1
+  fi
+}
+
 # Check the given option's validity.
 check_arg() {
   if [ "${ARGNUM}" -eq "0" ]; then
@@ -72,12 +91,14 @@ check_arg() {
     printf "\n${AERROR} Invalid option, use none or one script argument.\n" >&2
     exit 1
   else
-    PATTERN='^[a-z_-]*$'
+    PATTERN='^[3a-z_-]*$'
     if [[ $ARGONE =~ $PATTERN ]]; then
       if ([ "${ARGONE}" == "--uninstall" ] || [ "${ARGONE}" == "-u" ]); then
         uninstall
+      elif ([ "${ARGONE}" == "--uninstall-homm3" ] || [ "${ARGONE}" == "-uh3" ]); then
+        uninstall_homm3
       elif ([ "${ARGONE}" == "--help" ] || [ "${ARGONE}" == "-h" ]); then
-        printf "\n${AINFO} The only valid option at the moment is '--uninstall'.\n" >&2
+        printf "\n${AINFO} The only valid options are:\n '--uninstall' - to uninstall everything, and\n '--uninstall-homm3' - to uninstall HoMM3 (delete ~/.wine directory).\n" >&2
         exit 1
       else
         printf "\n${AINFO} Invalid option, continuing.\n"
@@ -94,10 +115,10 @@ check_arg() {
 # 14 - Yosemite, 15 - El Capitan, 16 - Sierra, 17 - High Sierra, 18 - Mojave etc.
 check_os () {
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
     printf "%s${AHR}\n\n" ""
   else
-    printf "\n%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
+    printf "\n\a%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
     exit 1
   fi
 }
@@ -216,7 +237,7 @@ install_winepkg () {
 
 # Check prerequisites. At the moment the two core install files have to be downloaded from gog.com (after purchasing HoMM3 Complete).
 echo_prerequisites () {
-  printf "%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
+  printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
   read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
   if [[ $REPLY =~ ^yes$ ]]; then
     if [ -f "$HOMM3CEXE" ]; then

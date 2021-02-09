@@ -105,6 +105,11 @@ If you have any feedback (feature requests, bug reports, problems etc.), feel fr
 ```
 curl -H 'Cache-Control: no-cache' -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -u
 ```
+To uninstall just your HoMM3 related stuff (deleting your ~/.wine directory), use this:
+
+```
+curl -H 'Cache-Control: no-cache' -fsSL https://raw.githubusercontent.com/Peneheals/ihhh/master/install_homm3.sh | bash -s -- -uh3
+```
 
 ## Copyright
 
