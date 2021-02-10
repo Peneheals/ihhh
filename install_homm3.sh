@@ -5,14 +5,14 @@
 set -e
 ARGNUM="$#"
 ARGONE="$1"
-OSVER=$(/usr/bin/sw_vers -productVersion)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RED=`tput setaf 1; tput bold`
 GREEN=`tput setaf 2; tput bold`
 YELLOW=`tput setaf 3; tput bold`
 BOLD=`tput bold`
 NC=`tput sgr0`
 AOK=`printf ${BOLD}[${GREEN}OK${NC}${BOLD}]${NC}`
-AERROR=`printf ${BOLD}[${RED}FALSE${NC}${BOLD}]${NC}`
+AERROR=`printf ${BOLD}[${RED}ERROR${NC}${BOLD}]${NC}`
 AINFO=`printf ${BOLD}[${YELLOW}INFO${NC}${BOLD}]${NC}`
 AHR=`printf ${RED}###########################################################################${NC}`
 INSECURE="--insecure|-k"
@@ -64,7 +64,7 @@ uninstall() {
   fi
 }
 
-# Uninstall HoMM3 - Delete ~/.wine!
+# Uninstall HoMM3 - Delete $HOME/.wine completely!
 uninstall_homm3() {
   printf "\n\a%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The HoMM3 uninstaller will wipe your $HOME/.wine directory and therefore ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
@@ -111,14 +111,21 @@ check_arg() {
   fi
 }
 
-# Check OS. At the moment Mac Catalina (or above) is not supported, neither Mavericks (or below).
-# 14 - Yosemite, 15 - El Capitan, 16 - Sierra, 17 - High Sierra, 18 - Mojave etc.
+# Check OS. At the moment Catalina (or above) is not supported, neither Mavericks (or below).
 check_os () {
+  OSVER=$(/usr/bin/sw_vers -productVersion)
+  SPLITOSVER=( ${OSVER//./ } )
+  SHORTOSVER="${SPLITOSVER[0]}.${SPLITOSVER[1]}"
+  if ([ "${SPLITOSVER[0]}" == "11" ]); then
+    OSNAME="Big Sur"
+  else
+    OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" $DIR/assets/macos.versions )
+  fi
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
     printf "%s${AHR}\n\n" ""
   else
-    printf "\n\a%s\n%s\n\n" "${AERROR} This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "And we are not supporting OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
+    printf "\n\a%s\n%s\n%s\n\n" "${AERROR} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "We also do not support OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
     exit 1
   fi
 }
@@ -329,7 +336,7 @@ generate_shortcut () {
   else
     cat <<EOT >> "$ICON"
 tell application "Terminal"
-  do script " ${WINE} $HOME/.wine/drive_c/${FOLDERS}/HD_launcher.exe"
+  do script " cd $HOME/.wine/drive_c/${FOLDERS}/ && ${WINE} HD_Launcher.exe"
 end tell
 EOT
     chmod 0755 "$ICON"

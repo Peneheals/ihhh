@@ -23,7 +23,7 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 1 - Open the Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
 
 <p align="center">
-  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
+  <a href="assets/images/open_terminal.png"><img src="assets/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
 </p>
 
 2 - Enter the following command:
@@ -33,7 +33,7 @@ The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-
 ```
 
 <p align="center">
-  <a href="docs/images/curl_run.png"><img src="docs/images/curl_run.png" width="400" alt="Run the script" /></a>
+  <a href="assets/images/curl_run.png"><img src="assets/images/curl_run.png" width="400" alt="Run the script" /></a>
 </p>
 
 ## How to run the game after the install process
@@ -67,31 +67,31 @@ If you have any feedback (feature requests, bug reports, problems etc.), feel fr
 1 - Download the code.
 
 <p align="center">
-  <a href="docs/images/download_zip.png"><img src="docs/images/download_zip.png" width="400" alt="Download the code" /></a>
+  <a href="assets/images/download_zip.png"><img src="assets/images/download_zip.png" width="400" alt="Download the code" /></a>
 </p>
 
 2 - Click on it to unzip.
 
 <p align="center">
-  <a href="docs/images/open_zip.png"><img src="docs/images/open_zip.png" width="400" alt="Unzip the package" /></a>
+  <a href="assets/images/open_zip.png"><img src="assets/images/open_zip.png" width="400" alt="Unzip the package" /></a>
 </p>
 
 3 - Check that it is in the right place (I assume your downloads go to your home's `Downloads` folder).
 
 <p align="center">
-  <a href="docs/images/unzipped_zip.png"><img src="docs/images/unzipped_zip.png" width="400" alt="Check the files" /></a>
+  <a href="assets/images/unzipped_zip.png"><img src="assets/images/unzipped_zip.png" width="400" alt="Check the files" /></a>
 </p>
 
 4 - Open the Terminal (hit `Command+Space` -> type `Terminal` and hit `Enter`).
 
 <p align="center">
-  <a href="docs/images/open_terminal.png"><img src="docs/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
+  <a href="assets/images/open_terminal.png"><img src="assets/images/open_terminal.png" width="400" alt="Open the Terminal" /></a>
 </p>
 
 5 - Run the script with `~/Downloads/ihhh-master/install_homm3.sh` command.
 
 <p align="center">
-  <a href="docs/images/run_script.png"><img src="docs/images/run_script.png" width="400" alt="Run the script" /></a>
+  <a href="assets/images/run_script.png"><img src="assets/images/run_script.png" width="400" alt="Run the script" /></a>
 </p>
 
 ## Uninstall
