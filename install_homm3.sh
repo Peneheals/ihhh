@@ -172,6 +172,7 @@ install_git () {
         printf "%s\n" "--insecure" > $HOME/.curlrc
         NEWCURLRC="1"
       fi
+      export HOMEBREW_CURLRC=1
       brew install --build-from-source git
       if [ -f "$HOME/.curlrc.old" ]; then
         rm -rf "$HOME/.curlrc"
