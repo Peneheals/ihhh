@@ -299,7 +299,7 @@ install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
   else
-    printf "${AHR}\n%s\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', select '${RED}Exit${NC}' at last step." "${RED}Mono${NC} and ${RED}Gecko${NC} packages are not necessary for HoMM3, skip them if asked."
+    printf "${AHR}\n%s\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
     "${WINE}" $HOMM3CEXE /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /productId="1207658787" /buildId="52179602202150698" /versionName="4.0" /Language="English" /LANG="english"
   fi
 }
@@ -309,7 +309,7 @@ install_homm3hd () {
   if [ -f "$WINEHOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installed."
   else
-    printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 HD into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', untick '${RED}Launch HoMM3 HD${NC}' at last step."
+    printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 HD into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
     "${WINE}" $HOMM3HD /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete"
   fi
 }
