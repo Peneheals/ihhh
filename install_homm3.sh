@@ -158,7 +158,12 @@ install_xs () {
 # Install Homebrew.
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if ([ "${OSTYPE:6}" == "14" ]); then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
+      brew install --build-from-source git
+    else
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
     printf "\n%s\n\n" "${AOK} Homebrew installed."
   else
     brew update
