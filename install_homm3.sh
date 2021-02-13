@@ -119,7 +119,8 @@ check_os () {
   if ([ "${SPLITOSVER[0]}" == "11" ]); then
     OSNAME="Big Sur"
   else
-    OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" $DIR/assets/macos.versions )
+    curl --silent --show-error --location --output "/tmp/macos.versions" https://raw.githubusercontent.com/Peneheals/ihhh/master/assets/macos.versions
+    OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" /tmp/macos.versions )
   fi
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
     printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
