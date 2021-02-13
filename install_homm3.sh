@@ -43,9 +43,9 @@ uninstall() {
       rm -rf "$HOME/.wine/"
       rm -rf "$HOME/Library/Caches/Wine/"
       printf "\n%s\n" "${AOK} Wine was deleted."
-      brew remove --force --ignore-dependencies $(brew list --formula)
+      # brew remove --force --ignore-dependencies $(brew list --formula)
       printf "\n%s\n" "${AOK} Brew formulas was removed."
-      brew remove --zap --force --ignore-dependencies $(brew list --cask)
+      # brew remove --zap --force --ignore-dependencies $(brew list --cask)
       printf "\n%s\n" "${AOK} Brew casks was removed."
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
@@ -155,17 +155,6 @@ install_xs () {
   fi
 }
 
-# Install Homebrew.
-install_homebrew () {
-  if [[ $(command -v brew) == "" ]]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    printf "\n%s\n\n" "${AOK} Homebrew installed."
-  else
-    brew update
-    printf "\n%s\n\n" "${AOK} Homebrew updated."
-  fi
-}
-
 # Install Git.
 install_git () {
   if brew list git; then
@@ -204,6 +193,22 @@ install_git () {
   fi
 }
 
+# Install Homebrew.
+install_homebrew () {
+  if [[ $(command -v brew) == "" ]]; then
+    if ([ "${OSTYPE:6}" == "14" ]); then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
+      install_git
+    else
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+    printf "\n%s\n\n" "${AOK} Homebrew installed."
+  else
+    brew update
+    printf "\n%s\n\n" "${AOK} Homebrew updated."
+  fi
+}
+
 # Install XQuartz.
 install_xquartz () {
   if brew list --cask xquartz; then
@@ -221,12 +226,14 @@ install_wine () {
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       # brew install wine --force-bottle
+      export WINEDLLOVERRIDES="mscoree,mshtml="
       brew install --cask wine-stable
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
       if brew ls --versions wine > /dev/null; then
 	      printf "\n%s\n\n" "${AOK} Wine is installed."
       else
+        export WINEDLLOVERRIDES="mscoree,mshtml="
         brew install wine
         printf "\n%s\n\n" "${AOK} Wine has been installed."
       fi
@@ -292,9 +299,8 @@ install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
   else
-    printf "${AHR}\n%s\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', select '${RED}Exit${NC}' at last step." "${RED}Mono${NC} and ${RED}Gecko${NC} packages are not necessary for HoMM3, skip them if asked."
-    sleep 2
-    "${WINE}" $HOMM3CEXE
+    printf "${AHR}\n%s\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
+    "${WINE}" $HOMM3CEXE /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /productId="1207658787" /buildId="52179602202150698" /versionName="4.0" /Language="English" /LANG="english"
   fi
 }
 
@@ -303,9 +309,8 @@ install_homm3hd () {
   if [ -f "$WINEHOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installed."
   else
-    printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 HD into '${RED}C:\\${FOLDERS//\//\\}\\${NC}', untick '${RED}Launch HoMM3 HD${NC}' at last step."
-    sleep 2
-    "${WINE}" $HOMM3HD
+    printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 HD into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
+    "${WINE}" $HOMM3HD /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete"
   fi
 }
 
@@ -315,8 +320,7 @@ install_homm3_hota () {
     printf "%s\n\n" "${AOK} HoMM3 HotA installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HotA into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
-    sleep 2
-    "${WINE}" $HOMM3HOTA
+    "${WINE}" $HOMM3HOTA /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /Language="English" /LANG="english"
   fi
 }
 
