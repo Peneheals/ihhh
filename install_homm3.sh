@@ -117,10 +117,10 @@ check_os () {
   SPLITOSVER=( ${OSVER//./ } )
   SHORTOSVER="${SPLITOSVER[0]}.${SPLITOSVER[1]}"
   if ([ "${SPLITOSVER[0]}" == "11" ]); then
-    OSNAME="Big Sur"
+    OSNAME="macOS Big Sur"
   else
     curl --silent --show-error --location --output "/tmp/macos.versions" https://raw.githubusercontent.com/Peneheals/ihhh/master/assets/macos.versions
-    OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" /tmp/macos.versions )
+    OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" "/tmp/macos.versions" )
   fi
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
     printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during the process," "select the correct install locations and allow or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
@@ -162,14 +162,14 @@ install_git () {
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       if [ -f "$HOME/.curlrc" ]; then
-        if grep -qrHnE -- "${INSECURE}" $HOME/.curlrc ; then
+        if grep -qrHnE -- "${INSECURE}" "$HOME/.curlrc" ; then
           :
         else
           mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
-          printf "%s\n" "--insecure" > $HOME/.curlrc
+          printf "%s\n" "--insecure" > "$HOME/.curlrc"
         fi
       else
-        printf "%s\n" "--insecure" > $HOME/.curlrc
+        printf "%s\n" "--insecure" > "$HOME/.curlrc"
         NEWCURLRC="1"
       fi
       export HOMEBREW_CURLRC=1
@@ -183,7 +183,7 @@ install_git () {
       fi
       printf "\n%s\n\n" "${AOK} Git has been installed."
     else
-      if brew ls --versions git > /dev/null; then
+      if brew ls --versions git >/dev/null; then
         brew upgrade git
 	      printf "\n%s\n\n" "${AOK} Git is installed."
       else
@@ -231,7 +231,7 @@ install_wine () {
       brew install --cask wine-stable
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
-      if brew ls --versions wine > /dev/null; then
+      if brew ls --versions wine >/dev/null; then
 	      printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         export WINEDLLOVERRIDES="mscoree,mshtml="
@@ -248,24 +248,45 @@ install_winepkg () {
   curl --silent --show-error --location --output "$HOME/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
   mkdir -p "$WINEPREFIX"
   sudo installer -pkg "$HOME/Downloads/winehq-stable-4.0.3.pkg" -target "$WINEPREFIX"
-  ln -s  "${WINE}" /usr/local/bin/wine
+  ln -s  "${WINE}" "/usr/local/bin/wine"
 }
 
-# Check prerequisites. At the moment the two core install files have to be downloaded from gog.com (after purchasing HoMM3 Complete).
+# Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
+install_cargo () {
+  if ([ "${OSTYPE:6}" == "14" ]); then
+    :
+  else
+    brew install rust
+    cargo install wyvern
+    printf "%s\n%s" "# Inserted by the HoMM3 installer" "export PATH=\"\$HOME/.cargo/bin:\$PATH\"" >> "$HOME/.bashrc"
+    . "$HOME/.bashrc"
+    read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
+    wyvern login --username "${REPLY}"
+    # 1207658787 is the GoG ID of HoMM3 Complete
+    wyvern down -w -i 1207658787 -o "$HOME/Downloads/"
+  fi
+}
+
+# Check prerequisites.
 echo_prerequisites () {
-  printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
-  read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
+  if ([ "${OSTYPE:6}" == "14" ]); then
+    printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
+    read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
+  else
+    REPLY=yes
+  fi
+
   if [[ $REPLY =~ ^yes$ ]]; then
     if [ -f "$HOMM3CEXE" ]; then
-      printf "\n%s\n\n" "${AOK} HoMM3 Complete filepart #1 present."
+      printf "\n%s\n\n" "${AOK} HoMM3 Complete filepart #1 exists: $HOMM3CEXE"
       if [ -f "$HOMM3CBIN" ]; then
-        printf "%s\n\n" "${AOK} HoMM3 Complete filepart #2 present."
+        printf "%s\n\n" "${AOK} HoMM3 Complete filepart #2 exists: $HOMM3CBIN"
       else
-        printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #2 missing. Download from gog.com. Aborting..." >&2
+        printf "%s\n%s\n\n" "${AERROR} HoMM3 Complete filepart #2 is missing: $HOMM3CBIN" "Download from gog.com. Aborting..." >&2
         exit 1
       fi
     else
-      printf "%s\n\n" "${AERROR} HoMM3 Complete filepart #1 missing. Download from gog.com. Aborting..." >&2
+      printf "%s\n%s\n\n" "${AERROR} HoMM3 Complete filepart #1 is missing: $HOMM3CEXE" "Download from gog.com. Aborting..." >&2
       exit 1
     fi
   else
@@ -276,21 +297,21 @@ echo_prerequisites () {
 
 # Download HoMM3 HD and HotA.
 download_files () {
-  printf "%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614"
+  printf "%s\n%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download" "and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to $HOME/Downloads"
 
   if [ -f "$HOMM3HD" ]; then
-    printf "%s\n\n" "${AOK} HoMM3 HD installer exists."
+    printf "%s\n\n" "${AOK} HoMM3 HD installer exists: $HOMM3HD"
   else
     curl --silent --show-error --location --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
-    printf "\n%s\n\n" "${AOK} HoMM3 HD downloaded."
+    printf "\n%s\n\n" "${AOK} HoMM3 HD downloaded to $HOMM3HD"
   fi
 
   if [ -f "$HOMM3HOTA" ]; then
-    printf "%s\n\n" "${AOK} HoMM3 HotA installer exists."
+    printf "%s\n\n" "${AOK} HoMM3 HotA installer exists: $HOMM3HOTA"
   else
 #    curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=598
     curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
-    printf "%s\n\n" "${AOK} HoMM3 HotA downloaded."
+    printf "%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
   fi
 }
 
@@ -300,7 +321,7 @@ install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
   else
-    printf "${AHR}\n%s\n%s\n${AHR}\n\n" "Install HoMM3 into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
+    printf "${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 into '${RED}$HOME/.wine/drive_c/$FOLDERS/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}'). "
     "${WINE}" $HOMM3CEXE /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /productId="1207658787" /buildId="52179602202150698" /versionName="4.0" /Language="English" /LANG="english"
   fi
 }
@@ -310,7 +331,7 @@ install_homm3hd () {
   if [ -f "$WINEHOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installed."
   else
-    printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HoMM3 HD into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
+    printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 HD into '${RED}$HOME/.wine/drive_c/$FOLDERS/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}'). "
     "${WINE}" $HOMM3HD /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete"
   fi
 }
@@ -320,7 +341,7 @@ install_homm3_hota () {
   if [ -f "$WINEHOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installed."
   else
-    printf "\n${AHR}\n%s\n${AHR}\n\n" "Install HotA into '${RED}C:\\${FOLDERS//\//\\}\\${NC}'."
+    printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HotA into '${RED}$HOME/.wine/drive_c/$FOLDERS/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}'). "
     "${WINE}" $HOMM3HOTA /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /Language="English" /LANG="english"
   fi
 }
@@ -369,6 +390,7 @@ install_git
 install_xquartz
 install_wine
 #install_winepkg
+install_cargo
 echo_prerequisites
 download_files
 install_homm3
