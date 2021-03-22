@@ -188,9 +188,12 @@ install_git () {
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
-      curl_insecure_fix_on
+      brew install curl
+      brew link curl --force
+      curl --version
+      #curl_insecure_fix_on
       brew install --build-from-source git
-      curl_insecure_fix_off
+      #curl_insecure_fix_off
       printf "\n%s\n\n" "${AOK} Git has been installed."
     else
       if brew ls --versions git >/dev/null; then
@@ -208,11 +211,11 @@ install_git () {
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
-      curl_insecure_fix_on
+      #curl_insecure_fix_on
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
       install_git
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      curl_insecure_fix_off
+      #curl_insecure_fix_off
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
