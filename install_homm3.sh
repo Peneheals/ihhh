@@ -155,6 +155,23 @@ install_xs () {
   fi
 }
 
+# Install Homebrew.
+install_homebrew () {
+  if [[ $(command -v brew) == "" ]]; then
+    if ([ "${OSTYPE:6}" == "14" ]); then
+      export HOMEBREW_CURLRC=1
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
+      install_git
+    else
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+    printf "\n%s\n\n" "${AOK} Homebrew installed."
+  else
+    brew update
+    printf "\n%s\n\n" "${AOK} Homebrew updated."
+  fi
+}
+
 # Install Git.
 install_git () {
   if brew list git; then
@@ -191,23 +208,6 @@ install_git () {
         printf "\n%s\n\n" "${AOK} Git has been installed."
       fi
     fi
-  fi
-}
-
-# Install Homebrew.
-install_homebrew () {
-  if [[ $(command -v brew) == "" ]]; then
-    if ([ "${OSTYPE:6}" == "14" ]); then
-      export HOMEBREW_CURLRC=1
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
-      install_git
-    else
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
-    printf "\n%s\n\n" "${AOK} Homebrew installed."
-  else
-    brew update
-    printf "\n%s\n\n" "${AOK} Homebrew updated."
   fi
 }
 
