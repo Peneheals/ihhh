@@ -131,6 +131,33 @@ check_os () {
   fi
 }
 
+# Curl insecure fix on.
+curl_insecure_fix_on () {
+  if [ -f "$HOME/.curlrc" ]; then
+    if grep -qrHnE -- "${INSECURE}" "$HOME/.curlrc" ; then
+      :
+    else
+      mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
+      printf "%s\n" "${INSECURE%%|*}" > "$HOME/.curlrc"
+    fi
+  else
+    printf "%s\n" "${INSECURE%%|*}" > "$HOME/.curlrc"
+    export NEWCURLRC="1"
+  fi
+  export HOMEBREW_CURLRC=1
+}
+
+# Curl insecure fix off.
+curl_insecure_fix_off () {
+  if [ -f "$HOME/.curlrc.old" ]; then
+    rm -rf "$HOME/.curlrc"
+    mv -f "$HOME/.curlrc.old" "$HOME/.curlrc"
+  fi
+  if [[ $NEWCURLRC == 1* ]]; then
+    rm -rf "$HOME/.curlrc"
+  fi
+}
+
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
   if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
@@ -159,9 +186,10 @@ install_xs () {
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
-      export HOMEBREW_CURLRC=1
+      curl_insecure_fix_on
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
       install_git
+      curl_insecure_fix_off
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
@@ -178,26 +206,9 @@ install_git () {
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
-      if [ -f "$HOME/.curlrc" ]; then
-        if grep -qrHnE -- "${INSECURE}" "$HOME/.curlrc" ; then
-          :
-        else
-          mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
-          printf "%s\n" "--insecure" > "$HOME/.curlrc"
-        fi
-      else
-        printf "%s\n" "--insecure" > "$HOME/.curlrc"
-        NEWCURLRC="1"
-      fi
-      export HOMEBREW_CURLRC=1
+      curl_insecure_fix_on
       brew install --build-from-source git
-      if [ -f "$HOME/.curlrc.old" ]; then
-        rm -rf "$HOME/.curlrc"
-        mv -f "$HOME/.curlrc.old" "$HOME/.curlrc"
-      fi
-      if [[ NEWCURLRC == 1* ]]; then
-        rm -rf "$HOME/.curlrc"
-      fi
+      curl_insecure_fix_off
       printf "\n%s\n\n" "${AOK} Git has been installed."
     else
       if brew ls --versions git >/dev/null; then
