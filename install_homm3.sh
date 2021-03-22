@@ -225,7 +225,7 @@ install_wine () {
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
   else
-    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
+    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
       # brew install wine --force-bottle
       export WINEDLLOVERRIDES="mscoree,mshtml="
       brew install --cask wine-stable
