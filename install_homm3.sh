@@ -185,7 +185,7 @@ install_git () {
     else
       if brew ls --versions git >/dev/null; then
         brew upgrade git
-	      printf "\n%s\n\n" "${AOK} Git is installed."
+	printf "\n%s\n\n" "${AOK} Git is installed."
       else
         brew install git
         printf "\n%s\n\n" "${AOK} Git has been installed."
@@ -198,6 +198,7 @@ install_git () {
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
+      export HOMEBREW_CURLRC=1
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
       install_git
     else
@@ -232,7 +233,7 @@ install_wine () {
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
       if brew ls --versions wine >/dev/null; then
-	      printf "\n%s\n\n" "${AOK} Wine is installed."
+	printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         export WINEDLLOVERRIDES="mscoree,mshtml="
         brew install wine
