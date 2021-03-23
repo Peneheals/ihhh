@@ -189,7 +189,8 @@ install_git () {
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       brew install curl
-      brew link curl --force
+      echo 'export PATH="/usr/local/opt/curl/bin:$PATH"' >> ~/.profile
+      . ~/.profile
       curl --version
       #curl_insecure_fix_on
       brew install --build-from-source git
