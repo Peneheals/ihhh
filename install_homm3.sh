@@ -189,6 +189,8 @@ install_git () {
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
       #curl_insecure_fix_on
+      export HOMEBREW_FORCE_BREWED_CURL=1
+      export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
       brew install --build-from-source git
       #curl_insecure_fix_off
       printf "\n%s\n\n" "${AOK} Git has been installed."
@@ -215,7 +217,11 @@ install_homebrew () {
       . ~/.profile
       curl --version
       install_git
+      echo $HOMEBREW_FORCE_BREWED_CURL
+      echo $HOMEBREW_SYSTEM_CURL_TOO_OLD
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo $HOMEBREW_FORCE_BREWED_CURL
+      echo $HOMEBREW_SYSTEM_CURL_TOO_OLD
       #curl_insecure_fix_off
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
