@@ -16,37 +16,42 @@ AERROR=`printf ${BOLD}[${RED}ERROR${NC}${BOLD}]${NC}`
 AINFO=`printf ${BOLD}[${YELLOW}INFO${NC}${BOLD}]${NC}`
 AHR=`printf ${RED}###########################################################################${NC}`
 INSECURE="--insecure|-k"
-HOMM3CEXE="$HOME/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
-HOMM3CBIN="$HOME/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740)-1.bin"
-HOMM3HD="$HOME/Downloads/HoMM3_HD_Latest_setup.exe"
-HOMM3HOTA="$HOME/Downloads/HotA_1.6.1_setup.exe"
+HOMM3CEXE="${HOME}/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
+HOMM3CBIN="${HOME}/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740)-1.bin"
+HOMM3HD="${HOME}/Downloads/HoMM3_HD_Latest_setup.exe"
+HOMM3HOTA="${HOME}/Downloads/HotA_1.6.1_setup.exe"
 WINEPKG="http://dl.winehq.org/wine-builds/macosx/pool/winehq-stable-4.0.3.pkg"
 WINE="/Applications/Wine Stable.app/Contents/Resources/wine/bin/wine"
 FOLDERS="GOG Games/HoMM 3 Complete"
-WINEHOMM3C="$HOME/.wine/drive_c/$FOLDERS/Heroes3.exe"
-WINEHOMM3HD="$HOME/.wine/drive_c/$FOLDERS/HD_Launcher.exe"
-WINEHOMM3HOTA="$HOME/.wine/drive_c/$FOLDERS/HotA_launcher.exe"
-ICON="$HOME/Desktop/homm3.app"
+WINEHOMM3C="${HOME}/.wine/drive_c/${FOLDERS}/Heroes3.exe"
+WINEHOMM3HD="${HOME}/.wine/drive_c/${FOLDERS}/HD_Launcher.exe"
+WINEHOMM3HOTA="${HOME}/.wine/drive_c/${FOLDERS}/HotA_launcher.exe"
+ICON="${HOME}/Desktop/homm3.app"
 
-# Uninstaller - Wipe EVERYTHING!
-uninstall() {
+# Exit if we are root.
+check_root () {
+  if [ $(id -u) = 0 ]; then
+   printf "\n\a%s\n" "You shouldn't run this installer as root! Aborting..."
+   exit 1
+ fi
+}
+
+# Uninstaller - It wipes EVERYTHING!
+uninstall () {
+  check_root
   printf "\n\a%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew${NC} and all the formulas/casks, ${RED}Wine${NC} and all your Wine-installed programs, ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
-    cd "$HOME"
+    cd "${HOME}"
     if [[ $(command -v brew) == "" ]]; then
       printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
     else
       brew remove --cask --force --ignore-dependencies wine-stable
       sudo rm -rf "/Applications/Wine Stable.app/"
-      rm -rf "$HOME/.local/"
-      rm -rf "$HOME/.wine/"
-      rm -rf "$HOME/Library/Caches/Wine/"
+      rm -rf "${HOME}/.local/"
+      rm -rf "${HOME}/.wine/"
+      rm -rf "${HOME}/Library/Caches/Wine/"
       printf "\n%s\n" "${AOK} Wine was deleted."
-      # brew remove --force --ignore-dependencies $(brew list --formula)
-      printf "\n%s\n" "${AOK} Brew formulas was removed."
-      # brew remove --zap --force --ignore-dependencies $(brew list --cask)
-      printf "\n%s\n" "${AOK} Brew casks was removed."
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
     fi
@@ -64,13 +69,14 @@ uninstall() {
   fi
 }
 
-# Uninstall HoMM3 - Delete $HOME/.wine completely!
-uninstall_homm3() {
+# Uninstall HoMM3 - Delete ${HOME}/.wine completely!
+uninstall_homm3 () {
+  check_root
   printf "\n\a%s${AHR}\n" ""
-  read -p "${RED}WARNING!${NC} The HoMM3 uninstaller will wipe your $HOME/.wine directory and therefore ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
+  read -p "${RED}WARNING!${NC} The HoMM3 uninstaller will wipe your ${HOME}/.wine directory and therefore ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
-    cd "$HOME"
-    rm -rf "$HOME/.wine/"
+    cd "${HOME}"
+    rm -rf "${HOME}/.wine/"
     printf "\n%s\n" "${AOK} .wine directory was deleted."
     rm -rf "$HOMM3HD"
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
@@ -84,7 +90,7 @@ uninstall_homm3() {
 }
 
 # Check the given option's validity.
-check_arg() {
+check_arg () {
   if [ "${ARGNUM}" -eq "0" ]; then
     :
   elif [ "${ARGNUM}" -gt "1" ]; then
@@ -98,7 +104,7 @@ check_arg() {
       elif ([ "${ARGONE}" == "--uninstall-homm3" ] || [ "${ARGONE}" == "-uh3" ]); then
         uninstall_homm3
       elif ([ "${ARGONE}" == "--help" ] || [ "${ARGONE}" == "-h" ]); then
-        printf "\n${AINFO} The only valid options are:\n '--uninstall' - to uninstall everything, and\n '--uninstall-homm3' - to uninstall HoMM3 (delete ~/.wine directory).\n" >&2
+        printf "\n${AINFO} The only valid options are:\n '--uninstall' - to uninstall everything, and\n '--uninstall-homm3' - to uninstall HoMM3 (delete ${HOME}/.wine directory).\n" >&2
         exit 1
       else
         printf "\n${AINFO} Invalid option, continuing.\n"
@@ -133,15 +139,15 @@ check_os () {
 
 # Curl insecure fix on.
 curl_insecure_fix_on () {
-  if [ -f "$HOME/.curlrc" ]; then
-    if grep -qrHnE -- "${INSECURE}" "$HOME/.curlrc" ; then
+  if [ -f "${HOME}/.curlrc" ]; then
+    if grep -qrHnE -- "${INSECURE}" "${HOME}/.curlrc" ; then
       :
     else
-      mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
-      printf "%s\n" "${INSECURE%%|*}" > "$HOME/.curlrc"
+      mv -f "${HOME}/.curlrc" "${HOME}/.curlrc.old"
+      printf "%s\n" "${INSECURE%%|*}" > "${HOME}/.curlrc"
     fi
   else
-    printf "%s\n" "${INSECURE%%|*}" > "$HOME/.curlrc"
+    printf "%s\n" "${INSECURE%%|*}" > "${HOME}/.curlrc"
     export NEWCURLRC="1"
   fi
   export HOMEBREW_CURLRC=1
@@ -149,12 +155,12 @@ curl_insecure_fix_on () {
 
 # Curl insecure fix off.
 curl_insecure_fix_off () {
-  if [ -f "$HOME/.curlrc.old" ]; then
-    rm -rf "$HOME/.curlrc"
-    mv -f "$HOME/.curlrc.old" "$HOME/.curlrc"
+  if [ -f "${HOME}/.curlrc.old" ]; then
+    rm -rf "${HOME}/.curlrc"
+    mv -f "${HOME}/.curlrc.old" "${HOME}/.curlrc"
   fi
   if [[ $NEWCURLRC == 1* ]]; then
-    rm -rf "$HOME/.curlrc"
+    rm -rf "${HOME}/.curlrc"
   fi
 }
 
@@ -187,21 +193,22 @@ install_git () {
   if brew list git; then
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
-    if ((${OSTYPE:6} = 14)); then
-      sudo mv /usr/bin/curl /usr/bin/curl.old
-      sudo ln -s /usr/local/opt/curl/bin/curl /usr/bin/curl
+    if ([ "${OSTYPE:6}" == "14" ]); then
+      # Bypass Yosemite's curl bug: https://github.com/curl/curl/issues/998
+      # We have to use the below hack because `brew link --force curl` isn't
+      # working either and without that we can't bypass the bug: SNI.
+      sudo mv -f "/usr/bin/curl" "/usr/bin/curl.old"
+      sudo ln -s "/usr/local/opt/curl/bin/curl" "/usr/bin/curl"
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
-      brew install --env=std --build-from-source git
+      brew install --build-from-source git
       printf "\n%s\n\n" "${AOK} Git has been installed."
-      sudo rm -rf /usr/bin/curl
-      sudo mv /usr/bin/curl.old /usr/bin/curl
+      sudo rm -rf "/usr/bin/curl"
+      sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
     elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
-      #curl_insecure_fix_on
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
-      brew install --env=std --build-from-source git
-      #curl_insecure_fix_off
+      brew install --build-from-source git
       printf "\n%s\n\n" "${AOK} Git has been installed."
     else
       if brew ls --versions git >/dev/null; then
@@ -219,19 +226,19 @@ install_git () {
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
-      #curl_insecure_fix_on
+      # Yosemite always fails at the first Brew install attempt.
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
+      # Yosemite's built-in curl is garbage, we have to use another solution.
       brew install curl-openssl
-      echo 'export PATH="/usr/local/opt/curl/bin:$PATH"' >> ~/.profile
-      . ~/.profile
-      curl --version
+      if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.profile" ; then
+        :
+      else
+        printf 'export PATH="/usr/local/opt/curl/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.profile"
+        . "${HOME}/.profile"
+      fi
+      # Yosemite's built-in git is garbage, we have to use another solution.
       install_git
-      echo $HOMEBREW_FORCE_BREWED_CURL
-      echo $HOMEBREW_SYSTEM_CURL_TOO_OLD
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      echo $HOMEBREW_FORCE_BREWED_CURL
-      echo $HOMEBREW_SYSTEM_CURL_TOO_OLD
-      #curl_insecure_fix_off
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
@@ -252,19 +259,19 @@ install_xquartz () {
   fi
 }
 
-# Install Wine. Mono and Gecko is not necessary.
+# Install Wine.
 install_wine () {
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
   else
     if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-      # brew install wine --force-bottle
+      # Install Wine without Mono and Gecko.
       export WINEDLLOVERRIDES="mscoree,mshtml="
       brew install --cask wine-stable
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
       if brew ls --versions wine >/dev/null; then
-	printf "\n%s\n\n" "${AOK} Wine is installed."
+	      printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         export WINEDLLOVERRIDES="mscoree,mshtml="
         brew install wine
@@ -277,9 +284,9 @@ install_wine () {
 # Install Wine from package (http://dl.winehq.org/wine-builds/macosx/pool/). Not used at the moment.
 install_winepkg () {
   export WINEPREFIX=/Volumes/Exfat4life/WINE
-  curl --silent --show-error --location --output "$HOME/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
+  curl --silent --show-error --location --output "${HOME}/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
   mkdir -p "$WINEPREFIX"
-  sudo installer -pkg "$HOME/Downloads/winehq-stable-4.0.3.pkg" -target "$WINEPREFIX"
+  sudo installer -pkg "${HOME}/Downloads/winehq-stable-4.0.3.pkg" -target "$WINEPREFIX"
   ln -s  "${WINE}" "/usr/local/bin/wine"
 }
 
@@ -290,12 +297,16 @@ install_cargo () {
   else
     brew install rust
     cargo install wyvern
-    printf "%s\n%s" "# Inserted by the HoMM3 installer" "export PATH=\"\$HOME/.cargo/bin:\$PATH\"" >> "$HOME/.bashrc"
-    . "$HOME/.bashrc"
+    if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
+      :
+    else
+      printf 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
+      . "${HOME}/.bashrc"
+    fi
     read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
     wyvern login --username "${REPLY}"
     # 1207658787 is the GoG ID of HoMM3 Complete
-    wyvern down -w -i 1207658787 -o "$HOME/Downloads/"
+    wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
   fi
 }
 
@@ -329,7 +340,7 @@ echo_prerequisites () {
 
 # Download HoMM3 HD and HotA.
 download_files () {
-  printf "%s\n%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download" "and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to $HOME/Downloads"
+  printf "%s\n%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download" "and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to ${HOME}/Downloads"
 
   if [ -f "$HOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installer exists: $HOMM3HD"
@@ -341,39 +352,39 @@ download_files () {
   if [ -f "$HOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installer exists: $HOMM3HOTA"
   else
-#    curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=598
     curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
     printf "%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
   fi
 }
 
-# Install HoMM3.
-# The "Error: unsupported compressor 8" errors are not relevant and can be ignored. HoMM3 with Wine is working well on APFS filesystem.
+# Install HoMM3 without user interaction.
+# The "Error: unsupported compressor 8" errors are not relevant and can be ignored.
+# HoMM3 with Wine is working well on APFS filesystem.
 install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
   else
-    printf "${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 into '${RED}$HOME/.wine/drive_c/$FOLDERS/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}'). "
+    printf "${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3CEXE /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /productId="1207658787" /buildId="52179602202150698" /versionName="4.0" /Language="English" /LANG="english"
   fi
 }
 
-# Install HoMM3 HD.
+# Install HoMM3 HD without user interaction.
 install_homm3hd () {
   if [ -f "$WINEHOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installed."
   else
-    printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 HD into '${RED}$HOME/.wine/drive_c/$FOLDERS/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}'). "
+    printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 HD into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3HD /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete"
   fi
 }
 
-# Install HoMM3 HotA.
+# Install HoMM3 HotA without user interaction.
 install_homm3_hota () {
   if [ -f "$WINEHOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installed."
   else
-    printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HotA into '${RED}$HOME/.wine/drive_c/$FOLDERS/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}'). "
+    printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HotA into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3HOTA /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /Language="English" /LANG="english"
   fi
 }
@@ -395,7 +406,7 @@ generate_shortcut () {
   else
     cat <<EOT >> "$ICON"
 tell application "Terminal"
-  do script " cd $HOME/.wine/drive_c/${FOLDERS}/ && ${WINE} HD_Launcher.exe"
+  do script " cd ${HOME}/.wine/drive_c/${FOLDERS}/ && ${WINE} HD_Launcher.exe"
 end tell
 EOT
     chmod 0755 "$ICON"
@@ -406,7 +417,7 @@ EOT
 end_message () {
   printf "\n${AHR}\n%s\n\n" "${RED}How to run the game after the install process:${NC}"
   printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal) to start the HD launcher:"
-  printf "%s\n" "${RED}cd \"$HOME/.wine/drive_c/${FOLDERS}\" && wine HD_Launcher.exe${NC}"
+  printf "%s\n" "${RED}cd \"${HOME}/.wine/drive_c/${FOLDERS}\" && wine HD_Launcher.exe${NC}"
   printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you found any!"
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
   printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (or push the up key for last executed command) and hit the '${RED}Play${NC}' button!"
@@ -414,6 +425,7 @@ end_message () {
   printf "%s${AHR}\n\n" ""
 }
 
+check_root
 check_arg
 check_os
 install_xs
@@ -432,3 +444,4 @@ install_homm3_hota
 #tweak
 #generate_shortcut
 end_message
+set +e
