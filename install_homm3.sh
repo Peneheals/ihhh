@@ -191,7 +191,7 @@ install_git () {
       #curl_insecure_fix_on
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
-      brew install --build-from-source git
+      brew install --env=std --build-from-source git
       #curl_insecure_fix_off
       printf "\n%s\n\n" "${AOK} Git has been installed."
     else
