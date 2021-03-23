@@ -131,6 +131,33 @@ check_os () {
   fi
 }
 
+# Curl insecure fix on.
+curl_insecure_fix_on () {
+  if [ -f "$HOME/.curlrc" ]; then
+    if grep -qrHnE -- "${INSECURE}" "$HOME/.curlrc" ; then
+      :
+    else
+      mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
+      printf "%s\n" "${INSECURE%%|*}" > "$HOME/.curlrc"
+    fi
+  else
+    printf "%s\n" "${INSECURE%%|*}" > "$HOME/.curlrc"
+    export NEWCURLRC="1"
+  fi
+  export HOMEBREW_CURLRC=1
+}
+
+# Curl insecure fix off.
+curl_insecure_fix_off () {
+  if [ -f "$HOME/.curlrc.old" ]; then
+    rm -rf "$HOME/.curlrc"
+    mv -f "$HOME/.curlrc.old" "$HOME/.curlrc"
+  fi
+  if [[ $NEWCURLRC == 1* ]]; then
+    rm -rf "$HOME/.curlrc"
+  fi
+}
+
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
   if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
@@ -160,32 +187,26 @@ install_git () {
   if brew list git; then
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
-    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
-      if [ -f "$HOME/.curlrc" ]; then
-        if grep -qrHnE -- "${INSECURE}" "$HOME/.curlrc" ; then
-          :
-        else
-          mv -f "$HOME/.curlrc" "$HOME/.curlrc.old"
-          printf "%s\n" "--insecure" > "$HOME/.curlrc"
-        fi
-      else
-        printf "%s\n" "--insecure" > "$HOME/.curlrc"
-        NEWCURLRC="1"
-      fi
-      export HOMEBREW_CURLRC=1
-      brew install --build-from-source git
-      if [ -f "$HOME/.curlrc.old" ]; then
-        rm -rf "$HOME/.curlrc"
-        mv -f "$HOME/.curlrc.old" "$HOME/.curlrc"
-      fi
-      if [[ NEWCURLRC == 1* ]]; then
-        rm -rf "$HOME/.curlrc"
-      fi
+    if ((${OSTYPE:6} = 14)); then
+      sudo mv /usr/bin/curl /usr/bin/curl.old
+      sudo ln -s /usr/local/opt/curl/bin/curl /usr/bin/curl
+      export HOMEBREW_FORCE_BREWED_CURL=1
+      export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
+      brew install --env=std --build-from-source git
+      printf "\n%s\n\n" "${AOK} Git has been installed."
+      sudo rm -rf /usr/bin/curl
+      sudo mv /usr/bin/curl.old /usr/bin/curl
+    elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
+      #curl_insecure_fix_on
+      export HOMEBREW_FORCE_BREWED_CURL=1
+      export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
+      brew install --env=std --build-from-source git
+      #curl_insecure_fix_off
       printf "\n%s\n\n" "${AOK} Git has been installed."
     else
       if brew ls --versions git >/dev/null; then
         brew upgrade git
-	      printf "\n%s\n\n" "${AOK} Git is installed."
+	printf "\n%s\n\n" "${AOK} Git is installed."
       else
         brew install git
         printf "\n%s\n\n" "${AOK} Git has been installed."
@@ -198,8 +219,19 @@ install_git () {
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
+      #curl_insecure_fix_on
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
+      brew install curl-openssl
+      echo 'export PATH="/usr/local/opt/curl/bin:$PATH"' >> ~/.profile
+      . ~/.profile
+      curl --version
       install_git
+      echo $HOMEBREW_FORCE_BREWED_CURL
+      echo $HOMEBREW_SYSTEM_CURL_TOO_OLD
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo $HOMEBREW_FORCE_BREWED_CURL
+      echo $HOMEBREW_SYSTEM_CURL_TOO_OLD
+      #curl_insecure_fix_off
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
@@ -225,14 +257,14 @@ install_wine () {
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
   else
-    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
+    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
       # brew install wine --force-bottle
       export WINEDLLOVERRIDES="mscoree,mshtml="
       brew install --cask wine-stable
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
       if brew ls --versions wine >/dev/null; then
-	      printf "\n%s\n\n" "${AOK} Wine is installed."
+	printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         export WINEDLLOVERRIDES="mscoree,mshtml="
         brew install wine
