@@ -187,7 +187,16 @@ install_git () {
   if brew list git; then
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
-    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 17)); then
+    if ((${OSTYPE:6} = 14)); then
+      sudo mv /usr/bin/curl /usr/bin/curl.old
+      sudo ln -s /usr/local/opt/curl/bin/curl /usr/bin/curl
+      export HOMEBREW_FORCE_BREWED_CURL=1
+      export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
+      brew install --env=std --build-from-source git
+      printf "\n%s\n\n" "${AOK} Git has been installed."
+      sudo rm -rf /usr/bin/curl
+      sudo mv /usr/bin/curl.old /usr/bin/curl
+    elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
       #curl_insecure_fix_on
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
