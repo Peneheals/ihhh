@@ -245,7 +245,7 @@ install_homebrew () {
       # Bypass Yosemite's curl bug: https://github.com/curl/curl/issues/998
       # We have to use the below hack because `brew link --force curl` isn't
       # working either and without that we can't bypass the SNI issue.
-      if [[ -L "/usr/bin/curl" && -f "/usr/bin/curl" ]]
+      if [[ -L "/usr/bin/curl" && -f "/usr/bin/curl" ]]; then
       	:
       else
       	sudo mv -f "/usr/bin/curl" "/usr/bin/curl.old"
