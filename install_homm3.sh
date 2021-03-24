@@ -252,9 +252,9 @@ install_homebrew () {
       	sudo ln -s "/usr/local/bin/curl" "/usr/bin/curl"
       fi
       install_git
-      curl_insecure_fix_off
-      sudo rm -rf "/usr/bin/curl"
-      sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
+      # curl_insecure_fix_off
+      # sudo rm -rf "/usr/bin/curl"
+      # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -381,6 +381,7 @@ install_homm3 () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "%s\n\n" "${AOK} HoMM3 Complete installed."
   else
+    export WINEDLLOVERRIDES="mscoree,mshtml="
     printf "${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3CEXE /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /productId="1207658787" /buildId="52179602202150698" /versionName="4.0" /Language="English" /LANG="english"
   fi
