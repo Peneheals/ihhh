@@ -238,6 +238,7 @@ install_homebrew () {
       ./configure --with-ssl
       make
       sudo make install
+      sudo chown -R $(whoami) /usr/local/share/
       cd "${HOME}/Downloads"
       rm -rf "curl-7.75.0.tar.gz"
       rm -rf "curl-7.75.0"
