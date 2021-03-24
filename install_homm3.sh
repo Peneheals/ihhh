@@ -194,17 +194,9 @@ install_git () {
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
     if ([ "${OSTYPE:6}" == "14" ]); then
-      # Bypass Yosemite's curl bug: https://github.com/curl/curl/issues/998
-      # We have to use the below hack because `brew link --force curl` isn't
-      # working either and without that we can't bypass the bug: SNI.
-      sudo mv -f "/usr/bin/curl" "/usr/bin/curl.old"
-      sudo ln -s "/usr/local/opt/curl/bin/curl" "/usr/bin/curl"
-      export HOMEBREW_FORCE_BREWED_CURL=1
-      export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
+      # Yosemite's built-in git is garbage, we have to use another solution.
       brew install --build-from-source git
       printf "\n%s\n\n" "${AOK} Git has been installed."
-      sudo rm -rf "/usr/bin/curl"
-      sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
     elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
@@ -228,16 +220,41 @@ install_homebrew () {
     if ([ "${OSTYPE:6}" == "14" ]); then
       # Yosemite always fails at the first Brew install attempt.
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
-      # Yosemite's built-in curl is garbage, we have to use another solution.
-      brew install curl-openssl
-      if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.profile" ; then
-        :
+      # Yosemite's built-in curl and openssl is garbage, we have to build ours.
+      # Give this a try: https://github.com/jasonacox/Build-OpenSSL-cURL
+      cd "${HOME}/Downloads"
+      curl --silent --show-error --location --output "${HOME}/Downloads/OpenSSL_1_1_1j.tar.gz" https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1j.tar.gz
+      tar -xzf "OpenSSL_1_1_1j.tar.gz"
+      cd "openssl-OpenSSL_1_1_1j"
+      ./Configure darwin64-x86_64-cc shared enable-ec_nistp_64_gcc_128 no-ssl2 no-ssl3 no-comp --openssldir=/usr/local/ssl
+      make depend
+      make install
+      cd "${HOME}/Downloads"
+      rm -rf "OpenSSL_1_1_1j.tar.gz"
+      rm -rf "openssl-OpenSSL_1_1_1j"
+      curl --silent --show-error --location --output "${HOME}/Downloads/curl-7.75.0.tar.gz" https://github.com/curl/curl/releases/download/curl-7_75_0/curl-7.75.0.tar.gz
+      tar -xzf "curl-7.75.0.tar.gz"
+      cd "curl-7.75.0"
+      ./configure --with-ssl
+      make
+      make install
+      cd "${HOME}/Downloads"
+      rm -rf "curl-7.75.0.tar.gz"
+      rm -rf "curl-7.75.0"
+      curl_insecure_fix_on
+      # Bypass Yosemite's curl bug: https://github.com/curl/curl/issues/998
+      # We have to use the below hack because `brew link --force curl` isn't
+      # working either and without that we can't bypass the SNI issue.
+      if [[ -L "/usr/bin/curl" && -f "/usr/bin/curl" ]]
+      	:
       else
-        printf 'export PATH="/usr/local/opt/curl/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.profile"
-        . "${HOME}/.profile"
+      	sudo mv -f "/usr/bin/curl" "/usr/bin/curl.old"
+      	sudo ln -s "/usr/local/bin/curl" "/usr/bin/curl"
       fi
-      # Yosemite's built-in git is garbage, we have to use another solution.
       install_git
+      curl_insecure_fix_off
+      sudo rm -rf "/usr/bin/curl"
+      sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
