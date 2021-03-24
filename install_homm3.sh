@@ -271,7 +271,7 @@ install_wine () {
       printf "\n%s\n\n" "${AOK} Wine stable has been installed."
     else
       if brew ls --versions wine >/dev/null; then
-	      printf "\n%s\n\n" "${AOK} Wine is installed."
+        printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         export WINEDLLOVERRIDES="mscoree,mshtml="
         brew install wine
@@ -292,7 +292,7 @@ install_winepkg () {
 
 # Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
 install_cargo () {
-  if ([ "${OSTYPE:6}" == "14" ]); then
+  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
     :
   else
     brew install rust
@@ -312,7 +312,7 @@ install_cargo () {
 
 # Check prerequisites.
 echo_prerequisites () {
-  if ([ "${OSTYPE:6}" == "14" ]); then
+  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
     printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
     read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
   else
