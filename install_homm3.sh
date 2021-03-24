@@ -237,7 +237,7 @@ install_homebrew () {
       cd "curl-7.75.0"
       ./configure --with-ssl
       make
-      make install
+      sudo make install
       cd "${HOME}/Downloads"
       rm -rf "curl-7.75.0.tar.gz"
       rm -rf "curl-7.75.0"
