@@ -228,7 +228,7 @@ install_homebrew () {
       cd "openssl-OpenSSL_1_1_1j"
       ./Configure darwin64-x86_64-cc shared enable-ec_nistp_64_gcc_128 no-ssl2 no-ssl3 no-comp --openssldir=/usr/local/ssl
       make depend
-      make install
+      sudo make install
       cd "${HOME}/Downloads"
       rm -rf "OpenSSL_1_1_1j.tar.gz"
       rm -rf "openssl-OpenSSL_1_1_1j"
