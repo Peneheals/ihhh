@@ -219,6 +219,7 @@ install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
       # Yosemite always fails at the first Brew install attempt.
+      curl_insecure_fix_on
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
       # Yosemite's built-in curl and openssl is garbage, we have to build ours.
       # Give this a try: https://github.com/jasonacox/Build-OpenSSL-cURL
@@ -244,7 +245,6 @@ install_homebrew () {
       cd "${HOME}/Downloads"
       rm -rf "curl-7.75.0.tar.gz"
       rm -rf "curl-7.75.0"
-      curl_insecure_fix_on
       # Bypass Yosemite's curl bug: https://github.com/curl/curl/issues/998
       # We have to use the below hack because `brew link --force curl` isn't
       # working either and without that we can't bypass the SNI issue.
