@@ -234,6 +234,7 @@ install_homebrew () {
       rm -rf "openssl-OpenSSL_1_1_1j"
       sudo chown -R $(whoami) /usr/local/share/
       sudo chown -R $(whoami) /usr/local/lib/
+      brew install pkg-config
       curl --silent --show-error --location --output "${HOME}/Downloads/curl-7.75.0.tar.gz" https://github.com/curl/curl/releases/download/curl-7_75_0/curl-7.75.0.tar.gz
       tar -xzf "curl-7.75.0.tar.gz"
       cd "curl-7.75.0"
