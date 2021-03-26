@@ -261,10 +261,13 @@ install_homebrew () {
       install_git
       sudo mv -f /usr/bin/git /usr/bin/git.old
       sudo ln -s /usr/local/bin/git /usr/bin/git
-      # Temporary and hacky resolution of:
+      # Temporary and hacky way to resolve this Apple+git cert problem:
       # fatal: unable to access 'https://github.com/Homebrew/brew/':
       # SSL certificate problem: unable to get local issuer certificate
       # Failed during: git fetch --force origin
+      # Elegant: DL cacert.pem from https://curl.se/docs/caextract.html
+      # Set `git config --global http.https://github.com/.sslCAinfo cacert.pem`
+      # Or to use `git config --global http.https://github.com/.sslVerify false`
       git config --global http.sslVerify false
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       git config --global http.sslVerify true
