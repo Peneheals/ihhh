@@ -218,11 +218,11 @@ install_git () {
 install_homebrew () {
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
-      # Yosemite always fails at the first Brew install attempt.
       curl_insecure_fix_on
+      # Yosemite always fails at the first Brew install attempt.
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
       # Yosemite's built-in curl and openssl is garbage, we have to build ours.
-      # Give this a try: https://github.com/jasonacox/Build-OpenSSL-cURL
+      # Give this a try later: https://github.com/jasonacox/Build-OpenSSL-cURL
       cd "${HOME}/Downloads"
       curl --silent --show-error --location --output "${HOME}/Downloads/OpenSSL_1_1_1j.tar.gz" https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1j.tar.gz
       tar -xzf "OpenSSL_1_1_1j.tar.gz"
@@ -235,7 +235,11 @@ install_homebrew () {
       rm -rf "openssl-OpenSSL_1_1_1j"
       sudo chown -R $(whoami) /usr/local/share/
       sudo chown -R $(whoami) /usr/local/lib/
+      # If we do not install this, we end up with a useless curl.
+      # dyld: lazy symbol binding failed: Symbol not found: _OpenSSL_version_num
+      # Referenced from: /usr/local/lib/libcurl.4.dylib Expected in: flat namespace
       brew install pkg-config
+      # Now we are ready to build the curl with working openssl.
       curl --silent --show-error --location --output "${HOME}/Downloads/curl-7.75.0.tar.gz" https://github.com/curl/curl/releases/download/curl-7_75_0/curl-7.75.0.tar.gz
       tar -xzf "curl-7.75.0.tar.gz"
       cd "curl-7.75.0"
@@ -255,10 +259,20 @@ install_homebrew () {
       	sudo ln -s "/usr/local/bin/curl" "/usr/bin/curl"
       fi
       install_git
+      sudo mv -f /usr/bin/git /usr/bin/git.old
+      sudo ln -s /usr/local/bin/git /usr/bin/git
+      # Temporary and hacky resolution of:
+      # fatal: unable to access 'https://github.com/Homebrew/brew/':
+      # SSL certificate problem: unable to get local issuer certificate
+      # Failed during: git fetch --force origin
+      git config --global http.sslVerify false
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      git config --global http.sslVerify true
       # curl_insecure_fix_off
       # sudo rm -rf "/usr/bin/curl"
       # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      # sudo rm -rf "/usr/bin/git"
+      # sudo mv -f "/usr/bin/git.old" "/usr/bin/git"
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
