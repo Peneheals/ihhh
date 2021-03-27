@@ -138,11 +138,12 @@ check_os () {
 
 # Curl insecure fix on.
 curl_insecure_fix_on () {
-  curl --silent --time-cond "${HOME}/Downloads/cacert.pem" --output "${HOME}/Downloads/cacert.pem" https://curl.se/ca/cacert.pem
+  # curl --silent --time-cond "${HOME}/Downloads/cacert.pem" --output "${HOME}/Downloads/cacert.pem" https://curl.se/ca/cacert.pem
+  # "cacert=${HOME}/Downloads/cacert.pem"
   if [ -f "${HOME}/.curlrc" ]; then
     mv -f "${HOME}/.curlrc" "${HOME}/.curlrc.old"
   fi
-  printf "%s\n%s\n%s\n%s\n%s\n" "--fail" "--insecure" "--location" "--show-error" "cacert=${HOME}/Downloads/cacert.pem" > "${HOME}/.curlrc"
+  printf "%s\n%s\n%s\n%s\n%s\n" "--fail" "--insecure" "--location" "--show-error" > "${HOME}/.curlrc"
   export HOMEBREW_CURLRC=1
 }
 
