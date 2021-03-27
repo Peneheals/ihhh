@@ -470,8 +470,10 @@ install_cargo
 echo_prerequisites
 download_files
 install_homm3
-install_homm3hd
-install_homm3_hota
+if ([ "${OSTYPE:6}" != "14" ]); then
+  install_homm3hd
+  install_homm3_hota
+fi
 #update
 #tweak
 #generate_shortcut
