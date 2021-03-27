@@ -15,7 +15,6 @@ AOK=`printf ${BOLD}[${GREEN}OK${NC}${BOLD}]${NC}`
 AERROR=`printf ${BOLD}[${RED}ERROR${NC}${BOLD}]${NC}`
 AINFO=`printf ${BOLD}[${YELLOW}INFO${NC}${BOLD}]${NC}`
 AHR=`printf ${RED}###########################################################################${NC}`
-INSECURE="--insecure|-k"
 HOMM3CEXE="${HOME}/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740).exe"
 HOMM3CBIN="${HOME}/Downloads/setup_heroes_of_might_and_magic_3_complete_4.0_(28740)-1.bin"
 HOMM3HD="${HOME}/Downloads/HoMM3_HD_Latest_setup.exe"
@@ -139,28 +138,19 @@ check_os () {
 
 # Curl insecure fix on.
 curl_insecure_fix_on () {
+  curl --silent --time-cond "${HOME}/Downloads/cacert.pem" --output "${HOME}/Downloads/cacert.pem" https://curl.se/ca/cacert.pem
   if [ -f "${HOME}/.curlrc" ]; then
-    if grep -qrHnE -- "${INSECURE}" "${HOME}/.curlrc" ; then
-      :
-    else
-      mv -f "${HOME}/.curlrc" "${HOME}/.curlrc.old"
-      printf "%s\n" "${INSECURE%%|*}" > "${HOME}/.curlrc"
-    fi
-  else
-    printf "%s\n" "${INSECURE%%|*}" > "${HOME}/.curlrc"
-    export NEWCURLRC="1"
+    mv -f "${HOME}/.curlrc" "${HOME}/.curlrc.old"
   fi
+  printf "%s\n%s\n%s\n%s\n%s\n" "--fail" "--insecure" "--location" "--show-error" "cacert=${HOME}/Downloads/cacert.pem" > "${HOME}/.curlrc"
   export HOMEBREW_CURLRC=1
 }
 
 # Curl insecure fix off.
 curl_insecure_fix_off () {
+  rm -rf "${HOME}/.curlrc"
   if [ -f "${HOME}/.curlrc.old" ]; then
-    rm -rf "${HOME}/.curlrc"
     mv -f "${HOME}/.curlrc.old" "${HOME}/.curlrc"
-  fi
-  if [[ $NEWCURLRC == 1* ]]; then
-    rm -rf "${HOME}/.curlrc"
   fi
 }
 
@@ -224,7 +214,7 @@ install_homebrew () {
       # Yosemite's built-in curl and openssl is garbage, we have to build ours.
       # Give this a try later: https://github.com/jasonacox/Build-OpenSSL-cURL
       cd "${HOME}/Downloads"
-      curl --silent --show-error --location --output "${HOME}/Downloads/OpenSSL_1_1_1j.tar.gz" https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1j.tar.gz
+      curl --progress-bar --output "${HOME}/Downloads/OpenSSL_1_1_1j.tar.gz" https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1j.tar.gz
       tar -xzf "OpenSSL_1_1_1j.tar.gz"
       cd "openssl-OpenSSL_1_1_1j"
       ./Configure darwin64-x86_64-cc shared enable-ec_nistp_64_gcc_128 no-ssl2 no-ssl3 no-comp --openssldir=/usr/local/ssl
@@ -239,8 +229,8 @@ install_homebrew () {
       # dyld: lazy symbol binding failed: Symbol not found: _OpenSSL_version_num
       # Referenced from: /usr/local/lib/libcurl.4.dylib Expected in: flat namespace
       brew install pkg-config
-      # Now we are ready to build the curl with working openssl.
-      curl --silent --show-error --location --output "${HOME}/Downloads/curl-7.75.0.tar.gz" https://github.com/curl/curl/releases/download/curl-7_75_0/curl-7.75.0.tar.gz
+      # Now we are ready to build curl with working openssl.
+      curl --progress-bar --output "${HOME}/Downloads/curl-7.75.0.tar.gz" https://github.com/curl/curl/releases/download/curl-7_75_0/curl-7.75.0.tar.gz
       tar -xzf "curl-7.75.0.tar.gz"
       cd "curl-7.75.0"
       ./configure --with-ssl
@@ -261,17 +251,13 @@ install_homebrew () {
       install_git
       sudo mv -f /usr/bin/git /usr/bin/git.old
       sudo ln -s /usr/local/bin/git /usr/bin/git
-      # Temporary and hacky way to resolve this Apple+git cert problem:
+      # Resolve the below Apple+git certificate error:
       # fatal: unable to access 'https://github.com/Homebrew/brew/':
       # SSL certificate problem: unable to get local issuer certificate
       # Failed during: git fetch --force origin
-      # Elegant: DL cacert.pem from https://curl.se/docs/caextract.html
-      # Set `git config --global http.https://github.com/.sslCAinfo cacert.pem`
-      # Or to use `git config --global http.https://github.com/.sslVerify false`
-      git config --global http.sslVerify false
+      git config --global http.https://github.com/.sslVerify false
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      git config --global http.sslVerify true
-      # curl_insecure_fix_off
+      curl_insecure_fix_off
       # sudo rm -rf "/usr/bin/curl"
       # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
       # sudo rm -rf "/usr/bin/git"
@@ -288,16 +274,19 @@ install_homebrew () {
 
 # Install XQuartz.
 install_xquartz () {
+  curl_insecure_fix_on
   if brew list --cask xquartz; then
     printf "\n%s\n\n" "${AOK} XQuartz is installed."
   else
     brew install --cask xquartz
     printf "\n%s\n\n" "${AOK} XQuartz has been installed."
   fi
+  curl_insecure_fix_off
 }
 
 # Install Wine.
 install_wine () {
+  curl_insecure_fix_on
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
   else
@@ -316,12 +305,13 @@ install_wine () {
       fi
     fi
   fi
+  curl_insecure_fix_off
 }
 
 # Install Wine from package (http://dl.winehq.org/wine-builds/macosx/pool/). Not used at the moment.
 install_winepkg () {
   export WINEPREFIX=/Volumes/Exfat4life/WINE
-  curl --silent --show-error --location --output "${HOME}/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
+  curl --progress-bar --output "${HOME}/Downloads/winehq-stable-4.0.3.pkg" "$WINEPKG"
   mkdir -p "$WINEPREFIX"
   sudo installer -pkg "${HOME}/Downloads/winehq-stable-4.0.3.pkg" -target "$WINEPREFIX"
   ln -s  "${WINE}" "/usr/local/bin/wine"
@@ -329,6 +319,7 @@ install_winepkg () {
 
 # Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
 install_cargo () {
+  curl_insecure_fix_on
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
     :
   else
@@ -345,6 +336,7 @@ install_cargo () {
     # 1207658787 is the GoG ID of HoMM3 Complete
     wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
   fi
+  curl_insecure_fix_off
 }
 
 # Check prerequisites.
@@ -377,21 +369,23 @@ echo_prerequisites () {
 
 # Download HoMM3 HD and HotA.
 download_files () {
+  curl_insecure_fix_on
   printf "%s\n%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download" "and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to ${HOME}/Downloads"
 
   if [ -f "$HOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installer exists: $HOMM3HD"
   else
-    curl --silent --show-error --location --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
+    curl --progress-bar --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
     printf "\n%s\n\n" "${AOK} HoMM3 HD downloaded to $HOMM3HD"
   fi
 
   if [ -f "$HOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installer exists: $HOMM3HOTA"
   else
-    curl --silent --show-error --location --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
+    curl --progress-bar --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
     printf "%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
   fi
+  curl_insecure_fix_off
 }
 
 # Install HoMM3 without user interaction.
