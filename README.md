@@ -9,13 +9,13 @@
 - [Uninstall](#uninstall)
 - [Copyright](#copyright)
 
-This short script will help you installing and running Heroes of Might and Magic 3, HoMM3 HD edition and Horn of the Abyss (HotA) on your older Mac OS. You need to do just one thing before you start the process: download the two offline HoMM3 installer files (~1 GB) from [gog.com](https://www.gog.com/account) (I assume you bought the game before).
+This short script helps you installing and running Heroes of Might and Magic 3, HoMM3 HD edition and Horn of the Abyss (HotA) on your older Macbooks. I recommend you to download the two offline HoMM3 installer files (~1 GB) from [gog.com](https://www.gog.com/account) (I assume you have the game).
 
-The whole project's aim is to automatize [this](https://rogulski.it/blog/heroes-3-on-wine/) well-written install guide.
+The project's goal is to automatize [this](https://rogulski.it/blog/heroes-3-on-wine/) well-written install guide.
 
 ## Prerequisites
 
-- A Macbook with Yosemite, El Capitan, Sierra, High Sierra or Mojave with the latest update. If you are using Catalina or Big Sur, check [this](https://github.com/anton-pavlov/homm3_docker) method insted of this.
+- A Macbook with Yosemite, El Capitan, Sierra, High Sierra or Mojave with the latest OS update. If you are using Catalina or Big Sur, check [this](https://github.com/anton-pavlov/homm3_docker) method.
 - Downloaded HoMM3 offline installer files from gog.com.
 
 ## Install
