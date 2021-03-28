@@ -155,6 +155,30 @@ curl_insecure_fix_off () {
   fi
 }
 
+# Ask for user input with a time limit. Fork of this: https://stackoverflow.com/a/56124134
+function read_input_ttl {
+  MESSAGE=$1
+  COUNTDOWNSHORTMESSAGE=$2
+  TIMEOUTREPLY=$3
+  READTIMEOUT=$4
+  printf "${MESSAGE}%s\n" ""
+  for (( i=$READTIMEOUT; i>=0; i--)); do
+    printf "\r${COUNTDOWNSHORTMESSAGE} ${i}s left > "
+    read -s -n 1 -t 1 waitreadyn
+    if [ $? -eq 0 ]; then
+      break
+    fi
+  done
+  ANSWER=""
+  if [ -z $waitreadyn ]; then
+    echo -e "\nNo input entered: Defaulting to '${RED}${TIMEOUTREPLY}${NC}'."
+    ANSWER="${TIMEOUTREPLY}"
+  else
+    echo -e "\n${waitreadyn}"
+    ANSWER="${waitreadyn}"
+  fi
+}
+
 # Install xcode-select. Opens a dialog prompt.
 install_xs () {
   if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
@@ -257,7 +281,7 @@ install_homebrew () {
       # SSL certificate problem: unable to get local issuer certificate
       # Failed during: git fetch --force origin
       git config --global http.https://github.com/.sslVerify false
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       curl_insecure_fix_off
       # sudo rm -rf "/usr/bin/curl"
       # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
@@ -318,37 +342,19 @@ install_winepkg () {
   ln -s  "${WINE}" "/usr/local/bin/wine"
 }
 
-# Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
-install_cargo () {
-  curl_insecure_fix_on
-  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
-    :
-  else
-    brew install rust
-    cargo install wyvern
-    if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
-      :
-    else
-      printf 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
-      . "${HOME}/.bashrc"
-    fi
-    read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
-    wyvern login --username "${REPLY}"
-    # 1207658787 is the GoG ID of HoMM3 Complete
-    wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
-  fi
-  curl_insecure_fix_off
-}
-
-# Check prerequisites.
-echo_prerequisites () {
-  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
+# Download HoMM3 installers.
+dl_h3_complete_installers () {
+  if [[ ( ${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15 ) || ( ${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17 && "${ANSWER}" != "b" ) ]]; then
     printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
-    read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded the necessary installer fileparts to your '${RED}Downloads${NC}' folder. `echo $'\n> '`"
+    read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded both the necessary installers to your '${RED}${HOME}/Downloads${NC}' folder (do not rename the files). `echo $'\n> '`"
   else
     REPLY=yes
   fi
+  check_h3_complete_installers
+}
 
+# Check HoMM3 installers.
+check_h3_complete_installers () {
   if [[ $REPLY =~ ^yes$ ]]; then
     if [ -f "$HOMM3CEXE" ]; then
       printf "\n%s\n\n" "${AOK} HoMM3 Complete filepart #1 exists: $HOMM3CEXE"
@@ -368,8 +374,45 @@ echo_prerequisites () {
   fi
 }
 
-# Download HoMM3 HD and HotA.
-download_files () {
+# Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
+install_rust_cargo_wyvern () {
+  brew install rust
+  cargo install wyvern
+  if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
+    :
+  else
+    printf 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
+    . "${HOME}/.bashrc"
+  fi
+  read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
+  wyvern login --username "${REPLY}"
+  # 1207658787 is the GoG ID of HoMM3 Complete
+  wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
+}
+
+ask_user_before_installing_cargo () {
+  curl_insecure_fix_on
+  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
+    # Rust and/or cargo and/or wyvern install fail, therefore we skip all.
+    dl_h3_complete_installers
+  elif ((${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17)); then
+    # Building from source takes way too long, therefore we ask the user and set skip as default.
+    read_input_ttl "On your Mac, building the dependencies to be able to download from gog.com takes 2-4 hours, meanwhile downloading in your browser takes less then 10 minutes. Therefore we are going to skip building the dependencies by default, and ask you to download the HoMM3 installer from gog.com. If you want to override this mechanism, type '${RED}b${NC} to ${RED}build${NC}' the dependencies." "Press 'b' to build, or press any other key to skip (this is the default)." "s" "60"
+    if [ "${ANSWER}" == "b" ]; then
+      install_rust_cargo_wyvern
+      check_h3_complete_installers
+    else
+      dl_h3_complete_installers
+    fi
+  else
+    install_rust_cargo_wyvern
+    check_h3_complete_installers
+  fi
+  curl_insecure_fix_off
+}
+
+# Download and check HoMM3 HD and HotA.
+check_h3_addons () {
   curl_insecure_fix_on
   printf "%s\n%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download" "and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to ${HOME}/Downloads"
 
@@ -467,9 +510,8 @@ install_git
 install_xquartz
 install_wine
 #install_winepkg
-install_cargo
-echo_prerequisites
-download_files
+ask_user_before_installing_cargo
+check_h3_addons
 install_homm3
 if ([ "${OSTYPE:6}" != "14" ]); then
   install_homm3hd
