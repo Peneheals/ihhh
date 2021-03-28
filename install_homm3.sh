@@ -248,6 +248,7 @@ install_homebrew () {
       cd "${HOME}/Downloads"
       rm -rf "OpenSSL_1_1_1j.tar.gz"
       rm -rf "openssl-OpenSSL_1_1_1j"
+      # Give back modified folders to current user
       sudo chown -R $(whoami) /usr/local/share/
       sudo chown -R $(whoami) /usr/local/lib/
       # If we do not install this, we end up with a useless curl.
@@ -344,7 +345,7 @@ install_winepkg () {
 
 # Download HoMM3 installers.
 dl_h3_complete_installers () {
-  if [[ ( ${OSTYPE:6} -ge 14 && ${OSTYPE:6} -le 15) || (${OSTYPE:6} -ge 16 && ${OSTYPE:6} -le 17 && "${ANSWER}" != "b") ]]; then
+  if [[ ( ${OSTYPE:6} -ge 14 && ${OSTYPE:6} -le 15 ) || ( ${OSTYPE:6} -ge 16 && ${OSTYPE:6} -le 17 && "${ANSWER}" -ne "b" ) ]]; then
     printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
     read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded both the necessary installers to your '${RED}${HOME}/Downloads${NC}' folder (do not rename the files). `echo $'\n> '`"
   else
