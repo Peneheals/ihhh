@@ -344,7 +344,7 @@ install_winepkg () {
 
 # Download HoMM3 installers.
 dl_h3_complete_installers () {
-  if [[ ( ${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15 ) || ( ${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17 && "${ANSWER}" != "b" ) ]]; then
+  if [[ ( ${OSTYPE:6} -ge 14 && ${OSTYPE:6} -le 15) || (${OSTYPE:6} -ge 16 && ${OSTYPE:6} -le 17 && "${ANSWER}" != "b") ]]; then
     printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
     read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded both the necessary installers to your '${RED}${HOME}/Downloads${NC}' folder (do not rename the files). `echo $'\n> '`"
   else
