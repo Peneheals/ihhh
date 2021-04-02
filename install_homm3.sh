@@ -41,7 +41,7 @@ check_root () {
 # Basic timer to track elapsed time of separate install blocks.
 function elapsed_time {
   CURRTIME=$(date +%s)
-  if [ -z "${var+x}" ]; then
+  if [ -z "$1" ]; then
     ELAPSED=$(( $CURRTIME - $STARTTIME ))
     printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
     STARTTIME=$(date +%s)
@@ -164,7 +164,7 @@ check_os () {
     OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" "/tmp/macos.versions" )
   fi
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n%s\n" "${AOK} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide multiple times your admin password during " "the process, select the correct install locations and allow or deny" "packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n%s\n" "${AINFO} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide your admin password multiple times during " "the process, enter your gog.com password or download files, and allow or deny" "packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
     printf "%s${AHR}\n\n" ""
   else
     printf "\n\a%s\n%s\n%s\n\n" "${AERROR} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "We also do not support OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
@@ -320,7 +320,6 @@ install_homebrew () {
       git config --global http.https://github.com/.sslVerify false
       echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       curl_insecure_fix_off
-      printf "\n%s\n\n" "${AOK} Homebrew has been installed in $(elapsed_time)."
       # sudo rm -rf "/usr/bin/curl"
       # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
       # sudo rm -rf "/usr/bin/git"
@@ -328,7 +327,7 @@ install_homebrew () {
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
-    printf "\n%s\n\n" "${AOK} Homebrew installed."
+    printf "\n%s\n\n" "${AOK} Homebrew has been installed in $(elapsed_time)."
   else
     brew update
     printf "\n%s\n\n" "${AOK} Homebrew has been updated in $(elapsed_time)."
@@ -472,9 +471,9 @@ check_h3_addons () {
   if [ -f "$HOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installer exists: $HOMM3HOTA"
   else
-    printf "%s\n" "${RED}Downloading${NC} HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to ${HOME}/Downloads"
+    printf "%s\n" "${RED}Downloading${NC} HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614"
     curl --progress-bar --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
-    printf "%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
+    printf "\n%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
   fi
   curl_insecure_fix_off
 }
