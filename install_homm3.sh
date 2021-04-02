@@ -402,10 +402,16 @@ install_rust_cargo_wyvern () {
     printf "\n%s\n" 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
     . "${HOME}/.bashrc"
   fi
-  read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
-  wyvern login --username "${REPLY}"
-  # 1207658787 is the GoG ID of HoMM3 Complete
-  wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
+  if [ -f "$WINEHOMM3C" ]; then
+    printf "%s\n\n" "${AOK} HoMM3 Complete looks like installed, skipping gog.com login."
+  elif [[ -f "${HOMM3CEXE}" && -f "${HOMM3CBIN}" ]]; then
+    printf "%s\n\n" "${AOK} HoMM3 Complete fileparts do exist, skipping gog.com login."
+  else
+    read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
+    wyvern login --username "${REPLY}"
+    # 1207658787 is the GoG ID of HoMM3 Complete
+    wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
+  fi
 }
 
 ask_user_before_installing_cargo () {
@@ -432,11 +438,11 @@ ask_user_before_installing_cargo () {
 # Download and check HoMM3 HD and HotA.
 check_h3_addons () {
   curl_insecure_fix_on
-  printf "%s\n%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download" "and HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to ${HOME}/Downloads"
 
   if [ -f "$HOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installer exists: $HOMM3HD"
   else
+    printf "%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download"
     curl --progress-bar --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
     printf "\n%s\n\n" "${AOK} HoMM3 HD downloaded to $HOMM3HD"
   fi
@@ -444,6 +450,7 @@ check_h3_addons () {
   if [ -f "$HOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installer exists: $HOMM3HOTA"
   else
+    printf "%s\n" "${RED}Downloading${NC} HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614 to ${HOME}/Downloads"
     curl --progress-bar --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
     printf "%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
   fi
