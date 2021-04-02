@@ -38,17 +38,19 @@ check_root () {
  fi
 }
 
-# Basic timer to track elapsed time of separate install blocks.
+# Simple timer to track rough elapsed time of separate install blocks.
 function elapsed_time {
   CURRTIME=$(date +%s)
-  if [ -z "$1" ]; then
+  if [[ "$1" == "" ]]; then
     ELAPSED=$(( $CURRTIME - $STARTTIME ))
     printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
     STARTTIME=$(date +%s)
-  else
+  elif [[ "$1" == "end" ]]; then
     # If we set an arg, assume that we are near the end.
     ELAPSED=$(( $CURRTIME - $SCRIPTSTARTTIME ))
     printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+  else
+    printf "%s" ""
   fi
 }
 
@@ -95,7 +97,7 @@ uninstall () {
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     # TODO: curl (+fix) & git & openssl - check lines ~290-310
-    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time end)."
+    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time 'end')."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
@@ -116,7 +118,7 @@ uninstall_homm3 () {
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
-    printf "%s\n" "HoMM3 has been uninstalled in $(elapsed_time end)."
+    printf "%s\n" "HoMM3 has been uninstalled in $(elapsed_time 'end')."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
@@ -247,23 +249,19 @@ install_git () {
     if ([ "${OSTYPE:6}" == "14" ]); then
       # Yosemite's built-in git is garbage, we have to use another solution.
       brew install --build-from-source git
-      ELTIME=$(elapsed_time)
-      printf "\n%s\n\n" "${AOK} Git has been installed in ${ELTIME}."
+      printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
     elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
       brew install --build-from-source git
-      ELTIME=$(elapsed_time)
-      printf "\n%s\n\n" "${AOK} Git has been installed in ${ELTIME}."
+      printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
     else
       if brew ls --versions git >/dev/null; then
         brew upgrade git
-	ELTIME=$(elapsed_time)
-	printf "\n%s\n\n" "${AOK} Git has been upgraded in ${ELTIME}."
+	printf "\n%s\n\n" "${AOK} Git has been upgraded in $(elapsed_time)."
       else
         brew install git
-	ELTIME=$(elapsed_time)
-        printf "\n%s\n\n" "${AOK} Git has been installed in ${ELTIME}."
+        printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
       fi
     fi
   fi
@@ -548,7 +546,7 @@ end_message () {
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
   printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (or push the up key for last executed command) and hit the '${RED}Play${NC}' button!"
   # printf "%s\n\n" "Locate the Desktop icon and start it! :)"
-  printf "%s\n" "HoMM3 has been installed in $(elapsed_time end)."
+  printf "%s\n" "HoMM3 has been installed in $(elapsed_time 'end')."
   printf "%s${AHR}\n\n" ""
 }
 
