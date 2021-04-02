@@ -95,7 +95,8 @@ uninstall () {
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     # TODO: curl (+fix) & git & openssl - check lines ~290-310
-    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time end)."
+    END=end
+    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time $END)."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
