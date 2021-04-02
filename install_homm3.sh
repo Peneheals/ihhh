@@ -47,7 +47,7 @@ function elapsed_time {
     STARTTIME=$(date +%s)
   else
     # If we set an arg, assume that we are near the end.
-    ELAPSED=$(( $CURRTIME - $STARTSCRIPTTIME ))
+    ELAPSED=$(( $CURRTIME - $SCRIPTSTARTTIME ))
     printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
   fi
 }
@@ -95,8 +95,7 @@ uninstall () {
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     # TODO: curl (+fix) & git & openssl - check lines ~290-310
-    END=end
-    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time $END)."
+    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time end)."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
