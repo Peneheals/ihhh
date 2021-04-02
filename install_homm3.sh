@@ -42,9 +42,12 @@ uninstall () {
   read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew${NC} and all the formulas/casks, ${RED}Wine${NC} and all your Wine-installed programs, ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "${HOME}"
+    # Brew & Wine & Xquartz
     if [[ $(command -v brew) == "" ]]; then
       printf "\n%s\n" "${AOK} Homebrew is in uninstalled state."
     else
+      brew remove --cask --force --ignore-dependencies xquartz
+      printf "\n%s\n" "${AOK} Xquartz was deleted."
       brew remove --cask --force --ignore-dependencies wine-stable
       sudo rm -rf "/Applications/Wine Stable.app/"
       rm -rf "${HOME}/.local/"
@@ -54,6 +57,7 @@ uninstall () {
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
     fi
+    # Cargo & Wyvern
     if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
       sed -i '/Inserted by HoMM3 installer/d' "${HOME}/.bashrc"
       . "${HOME}/.bashrc"
@@ -64,13 +68,16 @@ uninstall () {
       rm -rf "${HOME}/.cargo/"
       printf "\n%s\n" "${AOK} Cargo and Wyvern were deleted."
     fi
+    # Command line tools (Xcode)
     sudo rm -rf "/Library/Developer/CommandLineTools"
     sudo xcode-select -r
-    printf "\n%s\n" "${AOK} xcode-select has been reset and command line tools default folder was deleted."
+    printf "\n%s\n" "${AOK} Xcode has been reset and Command line tools default folder was deleted."
+    # HoMM3 HD&HotA installer
     rm -rf "$HOMM3HD"
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
+    # TODO: curl (+fix) & git & openssl - check lines ~290-310
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
