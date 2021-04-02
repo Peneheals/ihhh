@@ -2,6 +2,7 @@
 
 # Set some vars, colors, texts, files, URLs etc.
 # Let the script fail and immediately exit on any error.
+cd ${HOME}
 set -e
 ARGNUM="$#"
 ARGONE="$1"
@@ -35,6 +36,20 @@ check_root () {
    printf "\n\a%s\n" "You shouldn't run this installer as root! Aborting..."
    exit 1
  fi
+}
+
+# Basic timer to track elapsed time of separate install blocks.
+function elapsed_time {
+  CURRTIME=$(date +%s)
+  if [ -z "${var+x}" ]; then
+    ELAPSED=$(( $CURRTIME - $STARTTIME ))
+    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+    STARTTIME=$(date +%s)
+  else
+    # If we set an arg, assume that we are near the end.
+    ELAPSED=$(( $CURRTIME - $STARTSCRIPTTIME ))
+    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+  fi
 }
 
 # Uninstaller - It wipes EVERYTHING!
@@ -80,6 +95,7 @@ uninstall () {
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     # TODO: curl (+fix) & git & openssl - check lines ~290-310
+    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time end)."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
@@ -100,6 +116,7 @@ uninstall_homm3 () {
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
+    printf "%s\n" "HoMM3 has been uninstalled in $(elapsed_time end)."
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
@@ -198,20 +215,6 @@ function read_input_ttl {
   fi
 }
 
-# Basic timer to track elapsed time of separate install blocks.
-function elapsed_time {
-  CURRTIME=$(date +%s)
-  if [ -z "${var+x}" ]; then
-    ELAPSED=$(( $CURRTIME - $STARTTIME ))
-    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
-    STARTTIME=$(date +%s)
-  else
-    # If we set an arg, assume that we are near the end.
-    ELAPSED=$(( $CURRTIME - $STARTSCRIPTTIME ))
-    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
-  fi
-}
-
 # Install Xcode. Opens a dialog prompt.
 install_xs () {
   if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
@@ -234,7 +237,6 @@ install_xs () {
     xcode-select --install
     printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
   fi
-  printf "\n%s\n\n" "${AOK} Xcode has been installed in $(elapsed_time)."
 }
 
 # Install Git.
