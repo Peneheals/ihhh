@@ -189,10 +189,10 @@ function read_input_ttl {
   ANSWER=""
   if [ -z $waitreadyn ]; then
     echo -e "\nNo input entered: Defaulting to '${RED}${TIMEOUTREPLY}${NC}'."
-    ANSWER="${TIMEOUTREPLY}"
+    export ANSWER="${TIMEOUTREPLY}"
   else
     echo -e "\n${waitreadyn}"
-    ANSWER="${waitreadyn}"
+    export ANSWER="${waitreadyn}"
   fi
 }
 
@@ -360,35 +360,35 @@ install_winepkg () {
   ln -s  "${WINE}" "/usr/local/bin/wine"
 }
 
+# Check HoMM3 installers.
+check_h3_complete_installers () {
+  if [ -f "${HOMM3CEXE}" ]; then
+    printf "\n%s\n\n" "${AOK} HoMM3 Complete filepart #1 exists: ${HOMM3CEXE}"
+    if [ -f "${HOMM3CBIN}" ]; then
+      printf "%s\n\n" "${AOK} HoMM3 Complete filepart #2 exists: ${HOMM3CBIN}"
+    else
+      printf "%s\n%s\n\n" "${AERROR} HoMM3 Complete filepart #2 is missing: ${HOMM3CBIN}" "Download from gog.com. Aborting..." >&2
+      exit 1
+    fi
+  else
+    printf "%s\n%s\n\n" "${AERROR} HoMM3 Complete filepart #1 is missing: ${HOMM3CEXE}" "Download from gog.com. Aborting..." >&2
+    exit 1
+  fi
+}
+
 # Download HoMM3 installers.
 dl_h3_complete_installers () {
   if [[ ( ${OSTYPE:6} -ge 14 && ${OSTYPE:6} -le 15 ) || ( ${OSTYPE:6} -ge 16 && ${OSTYPE:6} -le 17 && "${ANSWER}" -ne "b" ) ]]; then
     printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
     read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded both the necessary installers to your '${RED}${HOME}/Downloads${NC}' folder (do not rename the files). `echo $'\n> '`"
-  else
-    REPLY=yes
-  fi
-  check_h3_complete_installers
-}
-
-# Check HoMM3 installers.
-check_h3_complete_installers () {
-  if [[ $REPLY =~ ^yes$ ]]; then
-    if [ -f "$HOMM3CEXE" ]; then
-      printf "\n%s\n\n" "${AOK} HoMM3 Complete filepart #1 exists: $HOMM3CEXE"
-      if [ -f "$HOMM3CBIN" ]; then
-        printf "%s\n\n" "${AOK} HoMM3 Complete filepart #2 exists: $HOMM3CBIN"
-      else
-        printf "%s\n%s\n\n" "${AERROR} HoMM3 Complete filepart #2 is missing: $HOMM3CBIN" "Download from gog.com. Aborting..." >&2
-        exit 1
-      fi
+    if [[ $REPLY =~ ^yes$ ]]; then
+      check_h3_complete_installers
     else
-      printf "%s\n%s\n\n" "${AERROR} HoMM3 Complete filepart #1 is missing: $HOMM3CEXE" "Download from gog.com. Aborting..." >&2
+      printf "%s\n\n" "${AERROR} Aborting..." >&2
       exit 1
     fi
   else
-    printf "%s\n\n" "${AERROR} Aborting..." >&2
-    exit 1
+    check_h3_complete_installers
   fi
 }
 
@@ -418,13 +418,13 @@ ask_user_before_installing_cargo () {
     read_input_ttl "On your Mac, building the dependencies to be able to download from gog.com takes 2-4 hours, meanwhile downloading in your browser takes less then 10 minutes. Therefore we are going to skip building the dependencies by default, and ask you to download the HoMM3 installer from gog.com. If you want to override this mechanism, type '${RED}b${NC} to ${RED}build${NC}' the dependencies." "Press 'b' to build, or press any other key to skip (this is the default)." "s" "60"
     if [ "${ANSWER}" == "b" ]; then
       install_rust_cargo_wyvern
-      check_h3_complete_installers
+      dl_h3_complete_installers
     else
       dl_h3_complete_installers
     fi
   else
     install_rust_cargo_wyvern
-    check_h3_complete_installers
+    dl_h3_complete_installers
   fi
   curl_insecure_fix_off
 }
