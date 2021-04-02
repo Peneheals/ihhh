@@ -247,19 +247,23 @@ install_git () {
     if ([ "${OSTYPE:6}" == "14" ]); then
       # Yosemite's built-in git is garbage, we have to use another solution.
       brew install --build-from-source git
-      printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
+      ELTIME=$(elapsed_time)
+      printf "\n%s\n\n" "${AOK} Git has been installed in ${ELTIME}."
     elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
       brew install --build-from-source git
-      printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
+      ELTIME=$(elapsed_time)
+      printf "\n%s\n\n" "${AOK} Git has been installed in ${ELTIME}."
     else
       if brew ls --versions git >/dev/null; then
         brew upgrade git
-	printf "\n%s\n\n" "${AOK} Git has been upgraded in $(elapsed_time)."
+	ELTIME=$(elapsed_time)
+	printf "\n%s\n\n" "${AOK} Git has been upgraded in ${ELTIME}."
       else
         brew install git
-        printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
+	ELTIME=$(elapsed_time)
+        printf "\n%s\n\n" "${AOK} Git has been installed in ${ELTIME}."
       fi
     fi
   fi
