@@ -6,6 +6,7 @@ set -e
 ARGNUM="$#"
 ARGONE="$1"
 STARTTIME=$(date +%s)
+SCRIPTSTARTTIME=$(date +%s)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RED=`tput setaf 1; tput bold`
 GREEN=`tput setaf 2; tput bold`
@@ -72,7 +73,7 @@ uninstall () {
     # Command line tools (Xcode)
     sudo rm -rf "/Library/Developer/CommandLineTools"
     sudo xcode-select -r
-    printf "\n%s\n" "${AOK} Xcode has been reset and Command line tools default folder was deleted."
+    printf "\n%s\n" "${AOK} Xcode has been reset and command line tools default folder was deleted."
     # HoMM3 HD&HotA installer
     rm -rf "$HOMM3HD"
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
@@ -197,28 +198,43 @@ function read_input_ttl {
   fi
 }
 
-# Install xcode-select. Opens a dialog prompt.
+# Basic timer to track elapsed time of separate install blocks.
+function elapsed_time {
+  CURRTIME=$(date +%s)
+  if [ -z "${var+x}" ]; then
+    ELAPSED=$(( $CURRTIME - $STARTTIME ))
+    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+    STARTTIME=$(date +%s)
+  else
+    # If we set an arg, assume that we are near the end.
+    ELAPSED=$(( $CURRTIME - $STARTSCRIPTTIME ))
+    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+  fi
+}
+
+# Install Xcode. Opens a dialog prompt.
 install_xs () {
   if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
     if ((${OSTYPE:6} < 18)); then
       if [[ -f "/Library/Developer/CommandLineTools/usr/bin/git" && -f "/usr/include/iconv.h" ]]; then
-        printf "\n%s\n\n" "${AOK} xcode-select is installed."
+        printf "\n%s\n\n" "${AOK} Xcode is installed."
       else
         xcode-select --install
-        printf "\n%s\n\n" "${AOK} xcode-select is installing, check the dialog box. Return to this terminal when its done."
+        printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
       fi
     else
       if [ -f "/Library/Developer/CommandLineTools/usr/bin/git" ]; then
-        printf "\n%s\n\n" "${AOK} xcode-select is installed."
+        printf "\n%s\n\n" "${AOK} Xcode is installed."
       else
         xcode-select --install
-        printf "\n%s\n\n" "${AOK} xcode-select is installing, check the dialog box. Return to this terminal when its done."
+        printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
       fi
     fi
   else
     xcode-select --install
-    printf "\n%s\n\n" "${AOK} xcode-select is installing, check the dialog box. Return to this terminal when its done."
+    printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
   fi
+  printf "\n%s\n\n" "${AOK} Xcode has been installed in $(elapsed_time)."
 }
 
 # Install Git.
@@ -229,19 +245,19 @@ install_git () {
     if ([ "${OSTYPE:6}" == "14" ]); then
       # Yosemite's built-in git is garbage, we have to use another solution.
       brew install --build-from-source git
-      printf "\n%s\n\n" "${AOK} Git has been installed."
+      printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
     elif ((${OSTYPE:6} >= 15 && ${OSTYPE:6} <= 17)); then
       export HOMEBREW_FORCE_BREWED_CURL=1
       export HOMEBREW_SYSTEM_CURL_TOO_OLD=1
       brew install --build-from-source git
-      printf "\n%s\n\n" "${AOK} Git has been installed."
+      printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
     else
       if brew ls --versions git >/dev/null; then
         brew upgrade git
-	printf "\n%s\n\n" "${AOK} Git has been upgraded."
+	printf "\n%s\n\n" "${AOK} Git has been upgraded in $(elapsed_time)."
       else
         brew install git
-        printf "\n%s\n\n" "${AOK} Git has been installed."
+        printf "\n%s\n\n" "${AOK} Git has been installed in $(elapsed_time)."
       fi
     fi
   fi
@@ -302,6 +318,7 @@ install_homebrew () {
       git config --global http.https://github.com/.sslVerify false
       echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       curl_insecure_fix_off
+      printf "\n%s\n\n" "${AOK} Homebrew has been installed in $(elapsed_time)."
       # sudo rm -rf "/usr/bin/curl"
       # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
       # sudo rm -rf "/usr/bin/git"
@@ -312,7 +329,7 @@ install_homebrew () {
     printf "\n%s\n\n" "${AOK} Homebrew installed."
   else
     brew update
-    printf "\n%s\n\n" "${AOK} Homebrew updated."
+    printf "\n%s\n\n" "${AOK} Homebrew has been updated in $(elapsed_time)."
   fi
 }
 
@@ -323,7 +340,7 @@ install_xquartz () {
     printf "\n%s\n\n" "${AOK} XQuartz is installed."
   else
     brew install --cask xquartz
-    printf "\n%s\n\n" "${AOK} XQuartz has been installed."
+    printf "\n%s\n\n" "${AOK} XQuartz has been installed in $(elapsed_time)."
   fi
   curl_insecure_fix_off
 }
@@ -338,14 +355,14 @@ install_wine () {
       # Install Wine without Mono and Gecko.
       export WINEDLLOVERRIDES="mscoree,mshtml="
       brew install --cask wine-stable
-      printf "\n%s\n\n" "${AOK} Wine stable has been installed."
+      printf "\n%s\n\n" "${AOK} Wine stable has been installed in $(elapsed_time)."
     else
       if brew ls --versions wine >/dev/null; then
         printf "\n%s\n\n" "${AOK} Wine is installed."
       else
         export WINEDLLOVERRIDES="mscoree,mshtml="
         brew install wine
-        printf "\n%s\n\n" "${AOK} Wine has been installed."
+        printf "\n%s\n\n" "${AOK} Wine has been installed in $(elapsed_time)."
       fi
     fi
   fi
@@ -396,7 +413,9 @@ dl_h3_complete_installers () {
 # Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
 install_rust_cargo_wyvern () {
   brew install rust
+  printf "\n%s\n" "${AOK} Rust and Cargo have been installed in $(elapsed_time)."
   cargo install wyvern
+  printf "\n%s\n" "${AOK} Wyvern has been installed in $(elapsed_time)."
   if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
     :
   else
@@ -524,9 +543,7 @@ end_message () {
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
   printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (or push the up key for last executed command) and hit the '${RED}Play${NC}' button!"
   # printf "%s\n\n" "Locate the Desktop icon and start it! :)"
-  ENDTIME=$(date +%s)
-  ELAPSED=$(( $ENDTIME - $STARTTIME ))
-  printf '%02dh:%02dm:%02ds\n' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+  printf "%s\n" "HoMM3 has been installed in $(elapsed_time end)."
   printf "%s${AHR}\n\n" ""
 }
 
