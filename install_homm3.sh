@@ -382,7 +382,7 @@ install_rust_cargo_wyvern () {
   if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
     :
   else
-    printf 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
+    printf "\n%s\n" 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
     . "${HOME}/.bashrc"
   fi
   read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
