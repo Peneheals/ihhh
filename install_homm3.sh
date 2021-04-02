@@ -59,7 +59,7 @@ uninstall () {
     fi
     # Cargo & Wyvern
     if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
-      sed -i '/Inserted by HoMM3 installer/d' "${HOME}/.bashrc"
+      sed -i.bak -e '/Inserted by HoMM3 installer/d' "${HOME}/.bashrc" && rm -rf "${HOME}/.bashrc.bak"
       . "${HOME}/.bashrc"
     fi
     if [[ -d "${HOME}/.cargo/" ]]; then
