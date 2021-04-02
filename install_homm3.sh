@@ -43,7 +43,7 @@ uninstall () {
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "${HOME}"
     if [[ $(command -v brew) == "" ]]; then
-      printf "\n%s\n\n" "${AOK} Homebrew is in uninstalled state."
+      printf "\n%s\n" "${AOK} Homebrew is in uninstalled state."
     else
       brew remove --cask --force --ignore-dependencies wine-stable
       sudo rm -rf "/Applications/Wine Stable.app/"
@@ -53,6 +53,16 @@ uninstall () {
       printf "\n%s\n" "${AOK} Wine was deleted."
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
+    fi
+    if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
+      sed -i '/Inserted by HoMM3 installer/d' "${HOME}/.bashrc"
+      . "${HOME}/.bashrc"
+    fi
+    if [[ -d "${HOME}/.cargo/" ]]; then
+      printf "\n%s\n" "${AOK} Cargo and Wyvern are in uninstalled state."
+    else
+      rm -rf "${HOME}/.cargo/"
+      printf "\n%s\n" "${AOK} Cargo and Wyvern were deleted."
     fi
     sudo rm -rf "/Library/Developer/CommandLineTools"
     sudo xcode-select -r
