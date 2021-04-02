@@ -5,6 +5,7 @@
 set -e
 ARGNUM="$#"
 ARGONE="$1"
+STARTTIME=$(date +%s)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RED=`tput setaf 1; tput bold`
 GREEN=`tput setaf 2; tput bold`
@@ -237,7 +238,7 @@ install_git () {
     else
       if brew ls --versions git >/dev/null; then
         brew upgrade git
-	printf "\n%s\n\n" "${AOK} Git is installed."
+	printf "\n%s\n\n" "${AOK} Git has been upgraded."
       else
         brew install git
         printf "\n%s\n\n" "${AOK} Git has been installed."
@@ -403,9 +404,9 @@ install_rust_cargo_wyvern () {
     . "${HOME}/.bashrc"
   fi
   if [ -f "$WINEHOMM3C" ]; then
-    printf "%s\n\n" "${AOK} HoMM3 Complete looks like installed, skipping gog.com login."
+    printf "\n%s\n" "${AOK} HoMM3 Complete looks like installed, skipping gog.com login."
   elif [[ -f "${HOMM3CEXE}" && -f "${HOMM3CBIN}" ]]; then
-    printf "%s\n\n" "${AOK} HoMM3 Complete fileparts do exist, skipping gog.com login."
+    printf "%s\n" "${AOK} HoMM3 Complete fileparts do exist, skipping gog.com login."
   else
     read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
     wyvern login --username "${REPLY}"
@@ -523,6 +524,9 @@ end_message () {
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
   printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (or push the up key for last executed command) and hit the '${RED}Play${NC}' button!"
   # printf "%s\n\n" "Locate the Desktop icon and start it! :)"
+  ENDTIME=$(date +%s)
+  ELAPSED=$(( $ENDTIME - $STARTTIME ))
+  printf '%02dh:%02dm:%02ds\n' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
   printf "%s${AHR}\n\n" ""
 }
 
