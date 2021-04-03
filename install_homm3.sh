@@ -27,7 +27,7 @@ FOLDERS="GOG Games/HoMM 3 Complete"
 WINEHOMM3C="${HOME}/.wine/drive_c/${FOLDERS}/Heroes3.exe"
 WINEHOMM3HD="${HOME}/.wine/drive_c/${FOLDERS}/HD_Launcher.exe"
 WINEHOMM3HOTA="${HOME}/.wine/drive_c/${FOLDERS}/HotA_launcher.exe"
-ICON="${HOME}/Desktop/homm3.app"
+ICONFOLDER="${HOME}/Desktop/HoMM3.app/Contents/MacOS"
 
 # Exit if we are root.
 check_root () {
@@ -94,6 +94,9 @@ uninstall () {
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     # TODO: curl (+fix) & git & openssl - check lines ~290-310
+    if [ -f "${ICONFOLDER}/HoMM3" ]; then
+      rm -rf "${HOME}/Desktop/HoMM3.app"
+    fi
     printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time 'end')."
     exit 0
   else
@@ -513,7 +516,7 @@ install_homm3hd () {
 # Install HoMM3 HotA without user interaction.
 install_homm3_hota () {
   if [ -f "$WINEHOMM3HOTA" ]; then
-    printf "\n%s\n" "${AOK} HoMM3 HotA installed."
+    printf "\n%s\n\n" "${AOK} HoMM3 HotA installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HotA into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3HOTA /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /Language="English" /LANG="english"
@@ -530,29 +533,32 @@ tweak () {
   sleep 1
 }
 
-# Create Desktop icon or Dock shortcut. Not used at the moment.
-generate_shortcut () {
-  if [ -f "$ICON" ]; then
-    printf "%s\n\n" "${AOK} HoMM3 shortcut is present."
+# Create desktop icon or Dock shortcut.
+generate_icon () {
+  if [ -f "${ICONFOLDER}/HoMM3" ]; then
+    printf "%s\n\n" "${AOK} HoMM3 icon is present on desktop."
   else
-    cat <<EOT >> "$ICON"
-tell application "Terminal"
-  do script " cd ${HOME}/.wine/drive_c/${FOLDERS}/ && ${WINE} HD_Launcher.exe"
-end tell
+    mkdir -p "${ICONFOLDER}"
+    cat <<EOT >> "${ICONFOLDER}/HoMM3"
+#!/usr/bin/env bash
+cd "${HOME}/.wine/drive_c/GOG Games/HoMM 3 Complete" && /usr/local/bin/wine "HD_Launcher.exe"
 EOT
-    chmod 0755 "$ICON"
-    printf "%s\n\n" "${AOK} HoMM3 shortcut has been created on Desktop."
+    chmod 0700 "${ICONFOLDER}/HoMM3"
+    printf "%s\n\n" "${AOK} HoMM3 icon has been created on desktop."
   fi
+  # Delete the Wine-related useless icon.
+  rm -rf "${HOME}/Desktop/Heroes of Might and Magic 3 Complete.desktop"
 }
 
 end_message () {
   printf "\n${AHR}\n%s\n\n" "${RED}How to run the game:${NC}"
+  printf "%s\n\n" "${BOLD}Locate the desktop icon and click on it! :)${NC}"
+  printf "%s\n\n" "${RED}How to run the game with command line:${NC}"
   printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal) to start the HD launcher:"
   printf "%s\n" "${RED}cd \"${HOME}/.wine/drive_c/${FOLDERS}\" && wine HD_Launcher.exe${NC}"
   printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you find any!"
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
-  printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (push up key for the last executed command) and hit '${RED}Play${NC}'!"
-  # printf "%s\n\n" "Locate the Desktop icon and start it! :)"
+  printf "%s\n%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher" "in the Terminal with the above command (push up key for the last executed command) and hit '${RED}Play${NC}'!"
   printf "\n%s\n" "HoMM3 has been installed in $(elapsed_time 'end')."
   printf "%s${AHR}\n\n" ""
 }
@@ -575,6 +581,6 @@ if ([ "${OSTYPE:6}" != "14" ]); then
 fi
 #update
 #tweak
-#generate_shortcut
+generate_icon
 end_message
 set +e
