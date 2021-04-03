@@ -6,7 +6,6 @@ cd ${HOME}
 set -e
 ARGNUM="$#"
 ARGONE="$1"
-STARTTIME=$(date +%s)
 SCRIPTSTARTTIME=$(date +%s)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RED=`tput setaf 1; tput bold`
@@ -40,15 +39,12 @@ check_root () {
 
 # Simple timer to track rough elapsed time of separate install blocks.
 function elapsed_time {
-  CURRTIME=$(date +%s)
   if [[ "$1" == "" ]]; then
-    ELAPSED=$(( $CURRTIME - $STARTTIME ))
-    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
-    STARTTIME=$(date +%s)
+    printf '%dh %dm %ds' $((SECONDS/3600)) $((SECONDS%3600/60)) $((SECONDS%60)) | sed "s/0[hm][[:blank:]]//g"
   elif [[ "$1" == "end" ]]; then
-    # If we set an arg, assume that we are near the end.
+    CURRTIME=$(date +%s)
     ELAPSED=$(( $CURRTIME - $SCRIPTSTARTTIME ))
-    printf '%02dh %02dm %02ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60))
+    printf '%dh %dm %ds' $((ELAPSED/3600)) $((ELAPSED%3600/60)) $((ELAPSED%60)) | sed "s/0[hm][[:blank:]]//g"
   else
     printf "%s" ""
   fi
@@ -56,6 +52,7 @@ function elapsed_time {
 
 # Uninstaller - It wipes EVERYTHING!
 uninstall () {
+  SECONDS=0
   check_root
   printf "\n\a%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew${NC} and all the formulas/casks, ${RED}Wine${NC} and all your Wine-installed programs, ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
@@ -107,6 +104,7 @@ uninstall () {
 
 # Uninstall HoMM3 - Delete ${HOME}/.wine completely!
 uninstall_homm3 () {
+  SECONDS=0
   check_root
   printf "\n\a%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The HoMM3 uninstaller will wipe your ${HOME}/.wine directory and therefore ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
@@ -166,10 +164,10 @@ check_os () {
     OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" "/tmp/macos.versions" )
   fi
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n%s\n" "${AINFO} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide your admin password multiple times during " "the process, enter your gog.com password or download files, and allow or deny" "packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take half an hour${NC}!"
+    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n%s\n" "${AINFO} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide your admin password multiple times during " "the process, enter your gog.com password or download files, and allow " "or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take 10-60 minutes!${NC}"
     printf "%s${AHR}\n\n" ""
   else
-    printf "\n\a%s\n%s\n%s\n\n" "${AERROR} Your Mac OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "We also do not support OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
+    printf "\n\a%s\n%s\n%s\n\n" "${AERROR} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "We also do not support OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
     exit 1
   fi
 }
@@ -222,14 +220,14 @@ install_xs () {
   if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
     if ((${OSTYPE:6} < 18)); then
       if [[ -f "/Library/Developer/CommandLineTools/usr/bin/git" && -f "/usr/include/iconv.h" ]]; then
-        printf "\n%s\n\n" "${AOK} Xcode is installed."
+        printf "%s\n\n" "${AOK} Xcode is installed."
       else
         xcode-select --install
         printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
       fi
     else
       if [ -f "/Library/Developer/CommandLineTools/usr/bin/git" ]; then
-        printf "\n%s\n\n" "${AOK} Xcode is installed."
+        printf "%s\n\n" "${AOK} Xcode is installed."
       else
         xcode-select --install
         printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
@@ -243,6 +241,7 @@ install_xs () {
 
 # Install Git.
 install_git () {
+  SECONDS=0
   if brew list git; then
     printf "\n%s\n\n" "${AOK} Git is installed."
   else
@@ -269,6 +268,7 @@ install_git () {
 
 # Install Homebrew.
 install_homebrew () {
+  SECONDS=0
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
       curl_insecure_fix_on
@@ -338,6 +338,7 @@ install_homebrew () {
 
 # Install XQuartz.
 install_xquartz () {
+  SECONDS=0
   curl_insecure_fix_on
   if brew list --cask xquartz; then
     printf "\n%s\n\n" "${AOK} XQuartz is installed."
@@ -350,6 +351,7 @@ install_xquartz () {
 
 # Install Wine.
 install_wine () {
+  SECONDS=0
   curl_insecure_fix_on
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
@@ -415,10 +417,13 @@ dl_h3_complete_installers () {
 
 # Install Rust, Cargo and Wyvern, then download offline game installers from gog.com.
 install_rust_cargo_wyvern () {
+  SECONDS=0
   brew install rust
-  printf "\n%s\n" "${AOK} Rust and Cargo have been installed in $(elapsed_time)."
+  printf "\n%s\n\n" "${AOK} Rust and Cargo have been installed in $(elapsed_time)."
+  SECONDS=0
   cargo install wyvern
   printf "\n%s\n" "${AOK} Wyvern has been installed in $(elapsed_time)."
+  SECONDS=0
   if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
     :
   else
@@ -428,12 +433,13 @@ install_rust_cargo_wyvern () {
   if [ -f "$WINEHOMM3C" ]; then
     printf "\n%s\n" "${AOK} HoMM3 Complete looks like installed, skipping gog.com login."
   elif [[ -f "${HOMM3CEXE}" && -f "${HOMM3CBIN}" ]]; then
-    printf "%s\n" "${AOK} HoMM3 Complete fileparts do exist, skipping gog.com login."
+    printf "\n%s\n" "${AOK} HoMM3 Complete fileparts do exist, skipping gog.com login."
   else
     read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
     wyvern login --username "${REPLY}"
     # 1207658787 is the GoG ID of HoMM3 Complete
     wyvern down -w -i 1207658787 -o "${HOME}/Downloads/"
+    printf "\n%s\n" "${AOK} HoMM3 Complete has been downloaded in $(elapsed_time)."
   fi
 }
 
@@ -461,23 +467,24 @@ ask_user_before_installing_cargo () {
 # Download and check HoMM3 HD and HotA.
 check_h3_addons () {
   curl_insecure_fix_on
-
   if [ -f "$HOMM3HD" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HD installer exists: $HOMM3HD"
+    HOMM3EXPEXISTS=1
   else
     printf "%s\n" "${RED}Downloading${NC} HD edition (~15 MB) from https://sites.google.com/site/heroes3hd/eng/download"
     curl --progress-bar --output "$HOMM3HD" http://vm914332.had.yt/HoMM3_HD_Latest_setup.exe
-    printf "\n%s\n\n" "${AOK} HoMM3 HD downloaded to $HOMM3HD"
   fi
-
   if [ -f "$HOMM3HOTA" ]; then
     printf "%s\n\n" "${AOK} HoMM3 HotA installer exists: $HOMM3HOTA"
+    HOMM3EXPEXISTS=1
   else
     printf "%s\n" "${RED}Downloading${NC} HotA (~200 MB) from https://www.vault.acidcave.net/file.php?id=614"
     curl --progress-bar --output "$HOMM3HOTA" https://www.vault.acidcave.net/download.php?id=614
-    printf "\n%s\n\n" "${AOK} HoMM3 HotA downloaded to $HOMM3HOTA"
   fi
   curl_insecure_fix_off
+  if [[ ! "${HOMM3EXPEXISTS}" == 1 ]]; then
+    printf "\n%s\n\n" "${AOK} HoMM3 HD and HotA have been downloaded in $(elapsed_time)."
+  fi
 }
 
 # Install HoMM3 without user interaction.
@@ -496,7 +503,7 @@ install_homm3 () {
 # Install HoMM3 HD without user interaction.
 install_homm3hd () {
   if [ -f "$WINEHOMM3HD" ]; then
-    printf "%s\n\n" "${AOK} HoMM3 HD installed."
+    printf "%s\n" "${AOK} HoMM3 HD installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 HD into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3HD /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete"
@@ -506,7 +513,7 @@ install_homm3hd () {
 # Install HoMM3 HotA without user interaction.
 install_homm3_hota () {
   if [ -f "$WINEHOMM3HOTA" ]; then
-    printf "%s\n\n" "${AOK} HoMM3 HotA installed."
+    printf "\n%s\n" "${AOK} HoMM3 HotA installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HotA into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3HOTA /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete" /Language="English" /LANG="english"
@@ -539,14 +546,14 @@ EOT
 }
 
 end_message () {
-  printf "\n${AHR}\n%s\n\n" "${RED}How to run the game after the install process:${NC}"
+  printf "\n${AHR}\n%s\n\n" "${RED}How to run the game:${NC}"
   printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal) to start the HD launcher:"
   printf "%s\n" "${RED}cd \"${HOME}/.wine/drive_c/${FOLDERS}\" && wine HD_Launcher.exe${NC}"
-  printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you found any!"
+  printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you find any!"
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
-  printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (or push the up key for last executed command) and hit the '${RED}Play${NC}' button!"
+  printf "%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher in the Terminal with the above command (push up key for the last executed command) and hit '${RED}Play${NC}'!"
   # printf "%s\n\n" "Locate the Desktop icon and start it! :)"
-  printf "%s\n" "HoMM3 has been installed in $(elapsed_time 'end')."
+  printf "\n%s\n" "HoMM3 has been installed in $(elapsed_time 'end')."
   printf "%s${AHR}\n\n" ""
 }
 
