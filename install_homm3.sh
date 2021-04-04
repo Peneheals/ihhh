@@ -519,18 +519,23 @@ install_homm3 () {
   fi
 }
 
-# Install HoMM3 HD without user interaction.
-install_homm3hd () {
+# Install HoMM3 HD & HotA without user interaction.
+install_homm3hd_and_hota () {
+  if ([ "${OSTYPE:6}" == "14" ]); then
+    # HD mod and HotA is not working well on Yosemite, therefore we ask the user and set skip as default.
+    read_input_ttl "On your Mac OS X Yosemite HD mod and HotA is buggy: the in-game mouse is missing or not shown in full size, therefore the gaming experience is crappy. So we do not install HD&HotA by default. If you want to override this mechanism, type '${RED}i${NC} to ${RED}install${NC}' them." "Press 'i' to install, or press any other key to skip (this is the default)." "s" "60"
+    if [ "${ANSWER}" == "i" ]; then
+      :
+    else
+      return 0
+    fi
+  fi
   if [ -f "$WINEHOMM3HD" ]; then
     printf "%s\n" "${AOK} HoMM3 HD installed."
   else
     printf "\n${AHR}\n%s\n${AHR}\n\n" "Installing HoMM3 HD into '${RED}${HOME}/.wine/drive_c/${FOLDERS}/${NC}' (Windows path: '${RED}C:\\${FOLDERS//\//\\}\\${NC}')."
     "${WINE}" $HOMM3HD /verysilent /supportDir="C:\GOG Games\HoMM 3 Complete\__support" /SUPPRESSMSGBOXES /NORESTART /DIR="C:\GOG Games\HoMM 3 Complete"
   fi
-}
-
-# Install HoMM3 HotA without user interaction.
-install_homm3_hota () {
   if [ -f "$WINEHOMM3HOTA" ]; then
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installed."
   else
@@ -555,10 +560,17 @@ generate_icon () {
     printf "%s\n\n" "${AOK} HoMM3 icon is present on desktop."
   else
     mkdir -p "${ICONFOLDER}"
-    cat <<EOT >> "${ICONFOLDER}/HoMM3"
+    if ([ "${OSTYPE:6}" == "14" ]); then
+      cat <<EOT >> "${ICONFOLDER}/HoMM3"
+#!/usr/bin/env bash
+cd "${HOME}/.wine/drive_c/GOG Games/HoMM 3 Complete" && /usr/local/bin/wine "Heroes3.exe"
+EOT
+    else
+      cat <<EOT >> "${ICONFOLDER}/HoMM3"
 #!/usr/bin/env bash
 cd "${HOME}/.wine/drive_c/GOG Games/HoMM 3 Complete" && /usr/local/bin/wine "HD_Launcher.exe"
 EOT
+    fi
     chmod 0700 "${ICONFOLDER}/HoMM3"
     printf "%s\n\n" "${AOK} HoMM3 icon has been created on desktop."
   fi
@@ -570,11 +582,16 @@ end_message () {
   printf "\n${AHR}\n%s\n\n" "${RED}How to run the game:${NC}"
   printf "%s\n\n" "${BOLD}Locate the desktop icon and click on it! :)${NC}"
   printf "%s\n\n" "${RED}How to run the game with command line:${NC}"
-  printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal) to start the HD launcher:"
+  printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal):"
+  if ([ "${OSTYPE:6}" == "14" ]); then
+    printf "%s\n" "${RED}cd \"${HOME}/.wine/drive_c/${FOLDERS}\" && wine Heroes3.exe${NC}"
+    printf "%s\n" "Or if you chose to install HD mod & HotA too:"
+  fi
   printf "%s\n" "${RED}cd \"${HOME}/.wine/drive_c/${FOLDERS}\" && wine HD_Launcher.exe${NC}"
   printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you find any!"
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
   printf "%s\n%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher" "in the Terminal with the above command (push up key for the last executed command) and hit '${RED}Play${NC}'!"
+  fi
   printf "\n%s\n" "HoMM3 has been installed in $(elapsed_time 'end')."
   printf "%s${AHR}\n\n" ""
 }
@@ -591,10 +608,7 @@ install_wine
 ask_user_before_installing_cargo
 check_h3_addons
 install_homm3
-if ([ "${OSTYPE:6}" != "14" ]); then
-  install_homm3hd
-  install_homm3_hota
-fi
+install_homm3hd_and_hota
 #update
 #tweak
 generate_icon
