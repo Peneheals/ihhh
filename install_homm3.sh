@@ -32,7 +32,7 @@ ICONFOLDER="${HOME}/Desktop/HoMM3.app/Contents/MacOS"
 # Exit if we are root.
 check_root () {
   if [ $(id -u) = 0 ]; then
-   printf "\n\a%s\n" "You shouldn't run this installer as root! Aborting..."
+   printf "\a\n%s\n" "You shouldn't run this installer as root! Aborting..."
    exit 1
  fi
 }
@@ -54,7 +54,7 @@ function elapsed_time {
 uninstall () {
   SECONDS=0
   check_root
-  printf "\n\a%s${AHR}\n" ""
+  printf "\a\n%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The uninstaller will wipe everything that HoMM3 needs for running, including ${RED}Homebrew${NC} and all the formulas/casks, ${RED}Wine${NC} and all your Wine-installed programs, ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "${HOME}"
@@ -126,7 +126,7 @@ uninstall () {
 uninstall_homm3 () {
   SECONDS=0
   check_root
-  printf "\n\a%s${AHR}\n" ""
+  printf "\a\n%s${AHR}\n" ""
   read -p "${RED}WARNING!${NC} The HoMM3 uninstaller will wipe your ${HOME}/.wine directory and therefore ${RED}HoMM3${NC} and every mods and ${RED}all your saved games${NC}! Enter '${RED}yes${NC}' to proceed if you are OK with the above. `echo $'\n> '`" </dev/tty
   if [[ $REPLY =~ ^yes$ ]]; then
     cd "${HOME}"
@@ -184,10 +184,10 @@ check_os () {
     OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" "/tmp/macos.versions" )
   fi
   if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
-    printf "\n${AHR}\n\a%s\n%s\n%s\n%s\n%s\n" "${AINFO} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide your admin password multiple times during " "the process, enter your gog.com password or download files, and allow " "or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take 10-60 minutes!${NC}"
+    printf "\a\n${AHR}\n%s\n%s\n%s\n%s\n%s\n" "${AINFO} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide your admin password multiple times during " "the process, enter your gog.com password or download files, and allow " "or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take 10-60 minutes!${NC}"
     printf "%s${AHR}\n\n" ""
   else
-    printf "\n\a%s\n%s\n%s\n\n" "${AERROR} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "We also do not support OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
+    printf "\a\n%s\n%s\n%s\n\n" "${AERROR} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "This installer is not suitable for macOS Catalina or Big Sur. Try this instead: https://github.com/anton-pavlov/homm3_docker" "We also do not support OS X Mavericks (or below) at the moment, try installing manually. Aborting..." >&2
     exit 1
   fi
 }
@@ -217,7 +217,7 @@ function read_input_ttl {
   COUNTDOWNSHORTMESSAGE=$2
   TIMEOUTREPLY=$3
   READTIMEOUT=$4
-  printf "${MESSAGE}%s\n" ""
+  printf "\a${MESSAGE}%s\n" ""
   for (( i=$READTIMEOUT; i>=0; i--)); do
     printf "\r${COUNTDOWNSHORTMESSAGE} ${i}s left > "
     read -s -n 1 -t 1 waitreadyn
@@ -228,10 +228,10 @@ function read_input_ttl {
   ANSWER=""
   if [ -z $waitreadyn ]; then
     echo -e "\nNo input entered: Defaulting to '${RED}${TIMEOUTREPLY}${NC}'."
-    export ANSWER="${TIMEOUTREPLY}"
+    ANSWER="${TIMEOUTREPLY}"
   else
     echo -e "\n${waitreadyn}"
-    export ANSWER="${waitreadyn}"
+    ANSWER="${waitreadyn}"
   fi
 }
 
@@ -243,19 +243,19 @@ install_xs () {
         printf "%s\n\n" "${AOK} Xcode is installed."
       else
         xcode-select --install
-        printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
+        printf "\a\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
       fi
     else
       if [ -f "/Library/Developer/CommandLineTools/usr/bin/git" ]; then
         printf "%s\n\n" "${AOK} Xcode is installed."
       else
         xcode-select --install
-        printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
+        printf "\a\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
       fi
     fi
   else
     xcode-select --install
-    printf "\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
+    printf "\a\n%s\n\n" "${AINFO} Xcode is installing, check the dialog box. Return to this terminal when its done."
   fi
 }
 
@@ -426,7 +426,7 @@ dl_h3_complete_installers () {
     if [[ $REPLY =~ ^yes$ ]]; then
       check_h3_complete_installers
     else
-      printf "%s\n\n" "${AERROR} Aborting..." >&2
+      printf "%s\n\n" "${AERROR} Download the necessary files then restart the installer. Aborting..." >&2
       exit 1
     fi
   else
@@ -454,6 +454,7 @@ install_rust_cargo_wyvern () {
   elif [[ -f "${HOMM3CEXE}" && -f "${HOMM3CBIN}" ]]; then
     printf "\n%s\n" "${AOK} HoMM3 Complete fileparts do exist, skipping gog.com login."
   else
+    printf "\a"
     read -p "Enter your '${RED}gog.com username${NC}' to proceed and download necessary HoMM3 files. `echo $'\n> '`"
     wyvern login --username "${REPLY}"
     # 1207658787 is the GoG ID of HoMM3 Complete
@@ -469,7 +470,7 @@ ask_user_before_installing_cargo () {
     dl_h3_complete_installers
   elif ((${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17)); then
     # Building from source takes way too long, therefore we ask the user and set skip as default.
-    read_input_ttl "On your Mac, building the dependencies to be able to download from gog.com takes 2-4 hours, meanwhile downloading in your browser takes less then 10 minutes. Therefore we are going to skip building the dependencies by default, and ask you to download the HoMM3 installer from gog.com. If you want to override this mechanism, type '${RED}b${NC} to ${RED}build${NC}' the dependencies." "Press 'b' to build, or press any other key to skip (this is the default)." "s" "60"
+    read_input_ttl "On your Mac, building the dependencies to be able to download from gog.com takes 2-4 hours, meanwhile downloading in your browser takes less then 10 minutes. Therefore we are going to skip building the dependencies by default, and ask you to download the HoMM3 installer from gog.com. If you want to override this mechanism, type '${RED}b${NC} to ${RED}build${NC}' the dependencies." "Press 'b' to build, or any other key to skip (this is the default)." "s" "60"
     if [ "${ANSWER}" == "b" ]; then
       install_rust_cargo_wyvern
       dl_h3_complete_installers
@@ -523,7 +524,7 @@ install_homm3 () {
 install_homm3hd_and_hota () {
   if ([ "${OSTYPE:6}" == "14" ]); then
     # HD mod and HotA is not working well on Yosemite, therefore we ask the user and set skip as default.
-    read_input_ttl "On your Mac OS X Yosemite HD mod and HotA is buggy: the in-game mouse is missing or not shown in full size, therefore the gaming experience is crappy. So we do not install HD&HotA by default. If you want to override this mechanism, type '${RED}i${NC} to ${RED}install${NC}' them." "Press 'i' to install, or press any other key to skip (this is the default)." "s" "60"
+    read_input_ttl "On your Mac OS X Yosemite HD mod and HotA is buggy: the in-game mouse is missing or not shown in full size, therefore the gaming experience is crappy. So we do not install HD and HotA by default. If you want to override this mechanism, type '${RED}i${NC} to ${RED}install${NC}' them." "Press 'i' to install, or any other key to skip (default)." "s" "60"
     if [ "${ANSWER}" == "i" ]; then
       :
     else
@@ -579,7 +580,7 @@ EOT
 }
 
 end_message () {
-  printf "\n${AHR}\n%s\n\n" "${RED}How to run the game:${NC}"
+  printf "\a\n${AHR}\n%s\n\n" "${RED}How to run the game:${NC}"
   printf "%s\n\n" "${BOLD}Locate the desktop icon and click on it! :)${NC}"
   printf "%s\n\n" "${RED}How to run the game with command line:${NC}"
   printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal):"
