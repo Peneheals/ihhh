@@ -591,7 +591,6 @@ end_message () {
   printf "%s\n" "${RED}2.${NC} Check for updates with '${RED}Update${NC}' button and install it if you find any!"
   printf "%s\n" "${RED}3.${NC} If the basic settings (resolution etc.) look OK, create the HD.exe with the '${RED}Create HD exe${NC}' button!"
   printf "%s\n%s\n" "${RED}4.${NC} Now you are ready to play! The above steps are not necessary in the future, just start the launcher" "in the Terminal with the above command (push up key for the last executed command) and hit '${RED}Play${NC}'!"
-  fi
   printf "\n%s\n" "HoMM3 has been installed in $(elapsed_time 'end')."
   printf "%s${AHR}\n\n" ""
 }
