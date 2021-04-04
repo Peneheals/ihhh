@@ -74,7 +74,7 @@ uninstall () {
       printf "\n%s\n" "${AOK} Homebrew was uninstalled."
     fi
     # Cargo & Wyvern
-    if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
+    if grep -qsrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
       sed -i.bak -e '/Inserted by HoMM3 installer/d' "${HOME}/.bashrc" && rm -rf "${HOME}/.bashrc.bak"
       . "${HOME}/.bashrc"
     fi
@@ -220,7 +220,7 @@ function read_input_ttl {
 
 # Install Xcode. Opens a dialog prompt.
 install_xs () {
-  if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qE "^xcode-select version 23[0-9]{2}.$" ; then
+  if xcode-select --print-path >/dev/null 2>&1 && xcode-select --version | grep -qsE "^xcode-select version 23[0-9]{2}.$" ; then
     if ((${OSTYPE:6} < 18)); then
       if [[ -f "/Library/Developer/CommandLineTools/usr/bin/git" && -f "/usr/include/iconv.h" ]]; then
         printf "%s\n\n" "${AOK} Xcode is installed."
@@ -427,7 +427,7 @@ install_rust_cargo_wyvern () {
   cargo install wyvern
   printf "\n%s\n" "${AOK} Wyvern has been installed in $(elapsed_time)."
   SECONDS=0
-  if grep -qrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
+  if grep -qsrHnE -- "Inserted by HoMM3 installer" "${HOME}/.bashrc" ; then
     :
   else
     printf "\n%s\n" 'export PATH="${HOME}/.cargo/bin:$PATH" # Inserted by HoMM3 installer.' >> "${HOME}/.bashrc"
