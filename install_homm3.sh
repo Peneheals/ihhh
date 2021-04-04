@@ -94,6 +94,23 @@ uninstall () {
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
     # TODO: curl (+fix) & git & openssl - check lines ~290-310
+    if [ "$(readlink -- "/usr/bin/curl")" = /usr/local/bin/curl ] && [ -f "/usr/bin/curl.old" ]; then
+      sudo rm -rf "/usr/bin/curl"
+      sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
+    else
+      :
+    fi
+    if [ "$(readlink -- "/usr/bin/git")" = /usr/local/bin/git ] && [ -f "/usr/bin/git.old" ]; then
+      sudo rm -rf "/usr/bin/git"
+      sudo mv -f "/usr/bin/git.old" "/usr/bin/git"
+    else
+      :
+    fi
+    # Delete any leftover rice
+    rm -rf "${HOME}/Downloads/OpenSSL_1_1_1j.tar.gz"
+    rm -rf "${HOME}/Downloads/OpenSSL_1_1_1j.tar.gz"
+    rm -rf "${HOME}/Downloads/curl-7.75.0.tar.gz"
+    rm -rf "${HOME}/Downloads/curl-7.75.0"
     if [ -f "${ICONFOLDER}/HoMM3" ]; then
       rm -rf "${HOME}/Desktop/HoMM3.app"
     fi
@@ -274,6 +291,8 @@ install_homebrew () {
   SECONDS=0
   if [[ $(command -v brew) == "" ]]; then
     if ([ "${OSTYPE:6}" == "14" ]); then
+      # Tempfix for Xcode
+      sleep 180
       curl_insecure_fix_on
       # Yosemite always fails at the first Brew install attempt.
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || :
@@ -287,8 +306,6 @@ install_homebrew () {
       make depend
       sudo make install
       cd "${HOME}/Downloads"
-      rm -rf "OpenSSL_1_1_1j.tar.gz"
-      rm -rf "openssl-OpenSSL_1_1_1j"
       # Give back modified folders to current user
       sudo chown -R $(whoami) /usr/local/share/
       sudo chown -R $(whoami) /usr/local/lib/
@@ -304,20 +321,23 @@ install_homebrew () {
       make
       make install
       cd "${HOME}/Downloads"
-      rm -rf "curl-7.75.0.tar.gz"
-      rm -rf "curl-7.75.0"
       # Bypass Yosemite's curl bug: https://github.com/curl/curl/issues/998
       # We have to use the below hack because `brew link --force curl` isn't
       # working either and without that we can't bypass the SNI issue.
-      if [[ -L "/usr/bin/curl" && -f "/usr/bin/curl" ]]; then
+      #if [[ -L "/usr/bin/curl" && -f "/usr/bin/curl" ]]; then
+      if [ "$(readlink -- "/usr/bin/curl")" = /usr/local/bin/curl ]; then
       	:
       else
       	sudo mv -f "/usr/bin/curl" "/usr/bin/curl.old"
       	sudo ln -s "/usr/local/bin/curl" "/usr/bin/curl"
       fi
       install_git
-      sudo mv -f /usr/bin/git /usr/bin/git.old
-      sudo ln -s /usr/local/bin/git /usr/bin/git
+      if [ "$(readlink -- "/usr/bin/git")" = /usr/local/bin/git ]; then
+        :
+      else
+        sudo mv -f /usr/bin/git /usr/bin/git.old
+        sudo ln -s /usr/local/bin/git /usr/bin/git
+      fi
       # Resolve the below Apple+git certificate error:
       # fatal: unable to access 'https://github.com/Homebrew/brew/':
       # SSL certificate problem: unable to get local issuer certificate
@@ -325,10 +345,6 @@ install_homebrew () {
       git config --global http.https://github.com/.sslVerify false
       echo | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       curl_insecure_fix_off
-      # sudo rm -rf "/usr/bin/curl"
-      # sudo mv -f "/usr/bin/curl.old" "/usr/bin/curl"
-      # sudo rm -rf "/usr/bin/git"
-      # sudo mv -f "/usr/bin/git.old" "/usr/bin/git"
     else
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
