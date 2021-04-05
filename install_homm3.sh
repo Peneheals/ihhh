@@ -213,6 +213,7 @@ curl_insecure_fix_off () {
 
 # Ask for user input with a time limit. Fork of this: https://stackoverflow.com/a/56124134
 function read_input_ttl {
+  set -e
   MESSAGE=$1
   COUNTDOWNSHORTMESSAGE=$2
   TIMEOUTREPLY=$3
@@ -233,6 +234,7 @@ function read_input_ttl {
     echo -e "\n${waitreadyn}"
     ANSWER="${waitreadyn}"
   fi
+  set +e
 }
 
 # Install Xcode. Opens a dialog prompt.
