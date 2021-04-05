@@ -28,6 +28,7 @@ WINEHOMM3C="${HOME}/.wine/drive_c/${FOLDERS}/Heroes3.exe"
 WINEHOMM3HD="${HOME}/.wine/drive_c/${FOLDERS}/HD_Launcher.exe"
 WINEHOMM3HOTA="${HOME}/.wine/drive_c/${FOLDERS}/HotA_launcher.exe"
 ICONFOLDER="${HOME}/Desktop/HoMM3.app/Contents/MacOS"
+HOTAINI="${HOME}/.wine/drive_c/${FOLDERS}/_HD3_Data/Settings/hota.ini"
 
 # Exit if we are root.
 check_root () {
@@ -114,7 +115,7 @@ uninstall () {
     if [ -f "${ICONFOLDER}/HoMM3" ]; then
       rm -rf "${HOME}/Desktop/HoMM3.app"
     fi
-    printf "%s\n" "HoMM3 and its dependencies have been uninstalled in $(elapsed_time 'end')."
+    printf "%s\n" "${BOLD}HoMM3 and its dependencies have been uninstalled in $(elapsed_time 'end').${NC}"
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
@@ -136,7 +137,7 @@ uninstall_homm3 () {
     printf "\n%s\n" "${AOK} HoMM3 HD installer was deleted."
     rm -rf "$HOMM3HOTA"
     printf "\n%s\n\n" "${AOK} HoMM3 HotA installer was deleted."
-    printf "%s\n" "HoMM3 has been uninstalled in $(elapsed_time 'end')."
+    printf "%s\n" "${BOLD}HoMM3 has been uninstalled in $(elapsed_time 'end').${NC}"
     exit 0
   else
     printf "%s\n\n" "${AERROR} Aborting..." >&2
@@ -228,10 +229,10 @@ function read_input_ttl {
   ANSWER=""
   if [ -z $waitreadyn ]; then
     echo -e "\nNo input entered: Defaulting to '${RED}${TIMEOUTREPLY}${NC}'."
-    ANSWER="${TIMEOUTREPLY}"
+    export ANSWER="${TIMEOUTREPLY}"
   else
     echo -e "\n${waitreadyn}"
-    ANSWER="${waitreadyn}"
+    export ANSWER="${waitreadyn}"
   fi
 }
 
@@ -470,7 +471,7 @@ ask_user_before_installing_cargo () {
     dl_h3_complete_installers
   elif ((${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17)); then
     # Building from source takes way too long, therefore we ask the user and set skip as default.
-    read_input_ttl "On your Mac, building the dependencies to be able to download from gog.com takes 2-4 hours, meanwhile downloading in your browser takes less then 10 minutes. Therefore we are going to skip building the dependencies by default, and ask you to download the HoMM3 installer from gog.com. If you want to override this mechanism, type '${RED}b${NC} to ${RED}build${NC}' the dependencies." "Press 'b' to build, or any other key to skip (this is the default)." "s" "60"
+    read_input_ttl "On your Mac, building the dependencies to be able to download from gog.com takes 2-4 hours, meanwhile downloading in your browser takes less then 10 minutes. Therefore we are going to skip building the dependencies by default, and ask you to download the HoMM3 installer from gog.com. If you want to override this mechanism, type '${RED}b${NC} to ${RED}build${NC}' the dependencies." "Press 'b' to build, or any other key to skip (default)." "s" "60"
     if [ "${ANSWER}" == "b" ]; then
       install_rust_cargo_wyvern
       dl_h3_complete_installers
@@ -550,9 +551,18 @@ update () {
   sleep 1
 }
 
-# Tweaking. Not used at the moment.
+# Tweaking - Just once, line by line for easement.
 tweak () {
-  sleep 1
+  if [ ! -f "${HOME}/.wine/drive_c/${FOLDERS}/script.h3" ]; then
+    sed -i.bak -e 's/<Misc.TournamentSaver> = 1/<Misc.TournamentSaver> = 0/g' "${HOTAINI}" && rm -rf "${HOTAINI}.bak"
+    sed -i.bak -e 's/<Misc.BattleSaver> = 1/<Misc.BattleSaver> = 0/g' "${HOTAINI}" && rm -rf "${HOTAINI}.bak"
+    sed -i.bak -e 's/<Main Game Full Screen> = 0/<Main Game Full Screen> = 1/g' "${HOTAINI}" && rm -rf "${HOTAINI}.bak"
+    sed -i.bak -e 's/<Update.CheckAtStart> = 1/<Update.CheckAtStart> = 0/g' "${HOTAINI}" && rm -rf "${HOTAINI}.bak"
+    #cp "${HOME}/.wine/drive_c/${FOLDERS}/h3hota.exe" "${HOME}/.wine/drive_c/${FOLDERS}/h3hotahd.exe"
+    #edit the binary
+    #cp the other .ini file too
+    touch "${HOME}/.wine/drive_c/${FOLDERS}/script.h3"
+  fi
 }
 
 # Create desktop icon or Dock shortcut.
@@ -610,7 +620,7 @@ check_h3_addons
 install_homm3
 install_homm3hd_and_hota
 #update
-#tweak
+tweak
 generate_icon
 end_message
 set +e
