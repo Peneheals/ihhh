@@ -183,7 +183,7 @@ check_os () {
     curl --silent --show-error --location --output "/tmp/macos.versions" https://raw.githubusercontent.com/Peneheals/ihhh/master/assets/macos.versions
     OSNAME=$(sed -n "/$SHORTOSVER/s/$SHORTOSVER//p" "/tmp/macos.versions" )
   fi
-  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
+  if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 18)); then
     printf "\a\n${AHR}\n%s\n%s\n%s\n%s\n%s\n" "${AINFO} Your OS is ${OSNAME}, version is ${OSVER}, type is ${OSTYPE:6}." "${AINFO} You might have to provide your admin password multiple times during " "the process, enter your gog.com password or download files, and allow " "or deny packages to install (check the help messages!)." "${AINFO} The whole install process ${BOLD}can take 10-60 minutes!${NC}"
     printf "%s${AHR}\n\n" ""
   else
@@ -292,7 +292,7 @@ install_git () {
 install_homebrew () {
   SECONDS=0
   if [[ $(command -v brew) == "" ]]; then
-    if ([ "${OSTYPE:6}" == "14" ]); then
+    if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 14)); then
       # Tempfix for Xcode
       sleep 180
       curl_insecure_fix_on
@@ -377,7 +377,7 @@ install_wine () {
   if brew list --cask wine-stable; then
     printf "\n%s\n\n" "${AOK} Wine stable is installed."
   else
-    if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 18)); then
+    if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 18)); then
       # Install Wine without Mono and Gecko.
       export WINEDLLOVERRIDES="mscoree,mshtml="
       brew install --cask wine-stable
@@ -422,7 +422,7 @@ check_h3_complete_installers () {
 
 # Download HoMM3 installers.
 dl_h3_complete_installers () {
-  if [[ ( ${OSTYPE:6} -ge 14 && ${OSTYPE:6} -le 15 ) || ( ${OSTYPE:6} -ge 16 && ${OSTYPE:6} -le 17 && "${ANSWER}" -ne "b" ) ]]; then
+  if [[ ( ${OSTYPE:6} -ge 13 && ${OSTYPE:6} -le 15 ) || ( ${OSTYPE:6} -ge 16 && ${OSTYPE:6} -le 17 && "${ANSWER}" -ne "b" ) ]]; then
     printf "\a%s\n" "${RED}Download${NC} HoMM3 Complete's offline backup game installers (~1 MB and ~0.9 GB) from your GoG games library: https://www.gog.com/account"
     read -p "Enter '${RED}yes${NC}' to proceed if you've already downloaded both the necessary installers to your '${RED}${HOME}/Downloads${NC}' folder (do not rename the files). `echo $'\n> '`"
     if [[ $REPLY =~ ^yes$ ]]; then
@@ -467,7 +467,7 @@ install_rust_cargo_wyvern () {
 
 ask_user_before_installing_cargo () {
   curl_insecure_fix_on
-  if ((${OSTYPE:6} >= 14 && ${OSTYPE:6} <= 15)); then
+  if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 15)); then
     # Rust and/or cargo and/or wyvern install fail, therefore we skip all.
     dl_h3_complete_installers
   elif ((${OSTYPE:6} >= 16 && ${OSTYPE:6} <= 17)); then
@@ -524,7 +524,7 @@ install_homm3 () {
 
 # Install HoMM3 HD & HotA without user interaction.
 install_homm3hd_and_hota () {
-  if ([ "${OSTYPE:6}" == "14" ]); then
+  if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 14)); then
     # HD mod and HotA is not working well on Yosemite, therefore we ask the user and set skip as default.
     read_input_ttl "On your Mac OS X Yosemite HD mod and HotA is buggy: the in-game mouse is missing or not shown in full size, therefore the gaming experience is crappy. So we do not install HD and HotA by default. If you want to override this mechanism, type '${RED}i${NC} to ${RED}install${NC}' them." "Press 'i' to install, or any other key to skip (default)." "s" "60"
     if [ "${ANSWER}" == "i" ]; then
@@ -563,7 +563,7 @@ generate_icon () {
     printf "%s\n\n" "${AOK} HoMM3 icon is present on desktop."
   else
     mkdir -p "${ICONFOLDER}"
-    if ([ "${OSTYPE:6}" == "14" ]); then
+    if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 14)); then
       cat <<EOT >> "${ICONFOLDER}/HoMM3"
 #!/usr/bin/env bash
 cd "${HOME}/.wine/drive_c/GOG Games/HoMM 3 Complete" && /usr/local/bin/wine "Heroes3.exe"
@@ -586,7 +586,7 @@ end_message () {
   printf "%s\n\n" "${BOLD}Locate the desktop icon and click on it! :)${NC}"
   printf "%s\n\n" "${RED}How to run the game with command line:${NC}"
   printf "%s\n" "${RED}1.${NC} Run the following command in the Terminal (CMND+Space -> Terminal):"
-  if ([ "${OSTYPE:6}" == "14" ]); then
+  if ((${OSTYPE:6} >= 13 && ${OSTYPE:6} <= 14)); then
     printf "%s\n" "${RED}cd \"${HOME}/.wine/drive_c/${FOLDERS}\" && wine Heroes3.exe${NC}"
     printf "%s\n" "Or if you chose to install HD mod & HotA too:"
   fi
